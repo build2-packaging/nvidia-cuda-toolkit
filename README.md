@@ -1,20 +1,20 @@
-# cuda-toolkit2 - <SUMMARY>
+# nvidia-cuda-toolkit - <SUMMARY>
 
-`cuda-toolkit2` is a <SUMMARY-OF-FUNCTIONALITY>.
+`nvidia-cuda-toolkit` is a <SUMMARY-OF-FUNCTIONALITY>.
 
 This file contains setup instructions and other details that are more
 appropriate for development rather than consumption. If you want to use
-`cuda-toolkit2` in your `build2`-based project, then instead see the accompanying
+`nvidia-cuda-toolkit` in your `build2`-based project, then instead see the accompanying
 package [`README.md`](<PACKAGE>/README.md) file.
 
-The development setup for `cuda-toolkit2` uses the standard `bdep`-based workflow.
+The development setup for `nvidia-cuda-toolkit` uses the standard `bdep`-based workflow.
 For example:
 
 ```
-git clone .../cuda-toolkit2.git
-cd cuda-toolkit2
+git clone .../nvidia-cuda-toolkit.git
+cd nvidia-cuda-toolkit
 
-bdep init -C @gcc cc config.cxx=g++
+bdep init -C @msvc c config.c=cl.exe
 bdep update
 bdep test
 ```

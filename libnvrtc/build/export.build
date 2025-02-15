@@ -1,0 +1,6 @@
+$out_root/
+{
+  include libnvrtc/
+}
+
+export $out_root/libnvrtc/$import.target

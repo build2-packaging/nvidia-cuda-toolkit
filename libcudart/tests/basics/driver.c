@@ -17,11 +17,11 @@ int main() {
   assert(cudaDriverGetVersion(&version) == cudaSuccess);
   int major = version / 1000;
   int minor = (version - (1000 * major)) / 10;
-  printf("cudaDriverGetVersion(): v%d.%d (%d)\n", major, minor, version);
+  printf("libcudart - cudaDriverGetVersion(): v%d.%d (%d)\n", major, minor, version);
 
   int count = 0;
   cudaGetDeviceCount(&count);
-  printf("cudaGetDeviceCount(): %d\n", count);
+  printf("libcudart - cudaGetDeviceCount(): %d\n", count);
 
   /* Only available on system with Nvidia GPUs */
   // int len = 1024;
@@ -32,7 +32,7 @@ int main() {
   //   assert(cuDeviceGet(&dev, i) == CUDA_SUCCESS);
   //   memset(name, 0, len);
   //   assert(cuDeviceGetName(name, len, dev) == CUDA_SUCCESS);
-  //   printf("cuDeviceGetName(): %s (device: %d)\n", name, dev);
+  //   printf("libcudart - cuDeviceGetName(): %s (device: %d)\n", name, dev);
   // }
   // free(name);
 
@@ -42,7 +42,7 @@ int main() {
     assert(cudaRuntimeGetVersion(&version) == cudaSuccess);
     major = version / 1000;
     minor = (version - (1000 * major)) / 10;
-    printf("cudaRuntimeGetVersion(): v%d.%d (%d)\n", major, minor, version);
+    printf("libcudart - cudaRuntimeGetVersion(): v%d.%d (%d)\n", major, minor, version);
   }
   else
   {

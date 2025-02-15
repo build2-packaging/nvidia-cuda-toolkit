@@ -10,6 +10,6 @@
 int main() {
   int major=0, minor=0;
   assert(nvvmVersion(&major, &minor) == NVVM_SUCCESS);
-  printf("nvvmVersion(): v%d.%d\n", major, minor);
+  printf("libnvvm - nvvmVersion(): v%d.%d\n", major, minor);
   return 0;
 }

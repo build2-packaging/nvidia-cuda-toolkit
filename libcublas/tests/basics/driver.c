@@ -12,6 +12,6 @@ int main() {
   assert(cublasGetVersion(&version) == CUBLAS_STATUS_SUCCESS);
   int major = version / 10000;
   int minor = (version - (10000 * major)) / 100;
-  printf("cublasGetVersion(): v%d.%d (%d)\n", major, minor, version);
+  printf("libcublas - cublasGetVersion(): v%d.%d (%d)\n", major, minor, version);
   return 0;
 }

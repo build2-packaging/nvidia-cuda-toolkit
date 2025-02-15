@@ -1,0 +1,6 @@
+$out_root/
+{
+  include libcudart/
+}
+
+export $out_root/libcudart/$import.target

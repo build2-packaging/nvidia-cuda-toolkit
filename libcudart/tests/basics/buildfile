@@ -1,0 +1,3 @@
+import libs = libcudart%libs{cudart}
+
+exe{driver}: c{*} $libs testscript{**}

@@ -1,0 +1,6 @@
+$out_root/
+{
+  include libcublas/
+}
+
+export $out_root/libcublas/$import.target

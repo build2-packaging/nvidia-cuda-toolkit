@@ -1,0 +1,3 @@
+import libs = libcublas%libs{cublas}
+
+exe{driver}: c{**} $libs testscript{**}

@@ -1,7 +1,12 @@
 # libcudart - A C library
 
-The `libcudart` C library provides <SUMMARY-OF-FUNCTIONALITY>.
-
+The CUDA Runtime Library (cudart) provides a high-level API for CUDA
+programming, simplifying memory management, kernel launches, and GPU
+operations. It abstracts the complexities of the CUDA Driver API,
+offering an easier interface for developers to write CUDA applications
+in both C and C++. The cudart library is essential for leveraging
+NVIDIA GPUs for general-purpose computing, enabling efficient
+execution of parallel algorithms.
 
 ## Usage
 
@@ -15,7 +20,7 @@ depends: libcudart ^<VERSION>
 Then import the library in your `buildfile`:
 
 ```
-import libs = libcudart%lib{<TARGET>}
+import libs = libcudart%lib{cudart}
 ```
 
 
@@ -24,18 +29,5 @@ import libs = libcudart%lib{<TARGET>}
 This package provides the following importable targets:
 
 ```
-lib{<TARGET>}
+lib{cudart}
 ```
-
-<DESCRIPTION-OF-IMPORTABLE-TARGETS>
-
-
-## Configuration variables
-
-This package provides the following configuration variables:
-
-```
-[bool] config.libcudart.<VARIABLE> ?= false
-```
-
-<DESCRIPTION-OF-CONFIG-VARIABLES>

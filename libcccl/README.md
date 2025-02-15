@@ -1,6 +1,9 @@
 # libcccl - A C++ library
 
-The `libcccl` C++ library provides <SUMMARY-OF-FUNCTIONALITY>.
+The goal of CCCL is to provide CUDA C++ developers with building blocks
+that make it easier to write safe and efficient code. Bringing these
+libraries together streamlines your development process and broadens
+your ability to leverage the power of CUDA C++.
 
 
 ## Usage
@@ -15,7 +18,7 @@ depends: libcccl ^<VERSION>
 Then import the library in your `buildfile`:
 
 ```
-import libs = libcccl%lib{<TARGET>}
+import libs = libcccl%lib{cccl}
 ```
 
 
@@ -24,18 +27,5 @@ import libs = libcccl%lib{<TARGET>}
 This package provides the following importable targets:
 
 ```
-lib{<TARGET>}
+lib{cccl}
 ```
-
-<DESCRIPTION-OF-IMPORTABLE-TARGETS>
-
-
-## Configuration variables
-
-This package provides the following configuration variables:
-
-```
-[bool] config.libcccl.<VARIABLE> ?= false
-```
-
-<DESCRIPTION-OF-CONFIG-VARIABLES>

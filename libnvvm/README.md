@@ -1,7 +1,10 @@
 # libnvvm - A C library
 
-The `libnvvm` C library provides <SUMMARY-OF-FUNCTIONALITY>.
-
+NVVM IR is a compiler IR (intermediate representation) based on the LLVM IR.
+The NVVM IR is designed to represent GPU compute kernels (for example, CUDA
+kernels). High-level language front-ends, like the CUDA C compiler front-end,
+can generate NVVM IR. The NVVM compiler (which is based on LLVM) generates
+PTX code from NVVM IR.
 
 ## Usage
 
@@ -15,7 +18,7 @@ depends: libnvvm ^<VERSION>
 Then import the library in your `buildfile`:
 
 ```
-import libs = libnvvm%lib{<TARGET>}
+import libs = libnvvm%libs{nvvm}
 ```
 
 
@@ -24,18 +27,6 @@ import libs = libnvvm%lib{<TARGET>}
 This package provides the following importable targets:
 
 ```
-lib{<TARGET>}
+libs{nvvm}
+exe{cicc}
 ```
-
-<DESCRIPTION-OF-IMPORTABLE-TARGETS>
-
-
-## Configuration variables
-
-This package provides the following configuration variables:
-
-```
-[bool] config.libnvvm.<VARIABLE> ?= false
-```
-
-<DESCRIPTION-OF-CONFIG-VARIABLES>

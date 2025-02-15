@@ -1,7 +1,11 @@
 # libcublas - A C library
 
-The `libcublas` C library provides <SUMMARY-OF-FUNCTIONALITY>.
-
+NVIDIA cuBLAS is a GPU-accelerated library for accelerating AI and HPC applications.
+It includes several API extensions for providing drop-in industry standard BLAS APIs
+and GEMM APIs with support for fusions that are highly optimized for NVIDIA GPUs.
+The cuBLAS library also contains extensions for batched operations, execution across
+multiple GPUs, and mixed- and low-precision execution with additional tuning for the
+best performance.
 
 ## Usage
 
@@ -15,7 +19,7 @@ depends: libcublas ^<VERSION>
 Then import the library in your `buildfile`:
 
 ```
-import libs = libcublas%lib{<TARGET>}
+import libs = libcublas%lib{cublas}
 ```
 
 
@@ -24,18 +28,5 @@ import libs = libcublas%lib{<TARGET>}
 This package provides the following importable targets:
 
 ```
-lib{<TARGET>}
+lib{cublas}
 ```
-
-<DESCRIPTION-OF-IMPORTABLE-TARGETS>
-
-
-## Configuration variables
-
-This package provides the following configuration variables:
-
-```
-[bool] config.libcublas.<VARIABLE> ?= false
-```
-
-<DESCRIPTION-OF-CONFIG-VARIABLES>

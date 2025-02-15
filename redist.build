@@ -11,7 +11,7 @@ redist{~'/(.+)/'}:
   n = $name($>)
 
   cat $path($<) \
-    | sed -n -e 's/url: (.*)/\1/p' \
+    | sed -n -e 's/url: (.*)$/\1/p' \
     | set url [string]
 
   cat $path($<) \

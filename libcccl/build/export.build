@@ -1,0 +1,6 @@
+$out_root/
+{
+  include libcccl/
+}
+
+export $out_root/libcccl/$import.target

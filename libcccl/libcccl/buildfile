@@ -1,0 +1,72 @@
+import intf_libs = \
+  libnvcc%liba{nvcc} \
+  libnvrtc%libs{nvrtc}
+
+name = $regex.replace($project, 'lib', '')
+
+source redist.build
+define [see_through] import: group
+
+./: lib{$name}: legal{LICENSE} import{$name} $intf_libs
+
+redist{cuda_cccl}: $src_root/manifest
+archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_cccl}
+extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
+import{$name}: extract{archive}: update = match
+
+import{$name}:
+{{
+  o = $directory($>[0])
+  d = $o/$(name).files
+
+  find "$out_base/include/" -type f -name "*" \
+    | set hdrs [paths]
+
+  depdb dyndep \
+    --dyn-target \
+    --target-cwd "$o" \
+    --target-what 'imported files' \
+    --target-default-type 'hxx' \
+    --target-extension-type '=h' \
+    --target-extension-type 'h=hxx' \
+    --target-extension-type 'hpp=hxx' \
+    --target-extension-type 'inl=hxx' \
+    --target-extension-type 'cuh=hxx' \
+    --target-extension-type 'a=liba' \
+    --target-extension-type 'so=libs' \
+    --target-extension-type 'dylib=libs' \
+    --target-extension-type 'dll=libs' \
+    --target-extension-type 'lib=liba' \
+    --format lines \
+    --file $d \
+    -- \
+      echo $hdrs >$d &!$d
+
+  diag import $>
+
+  for t : $filter_out($>, group)
+    touch $path($t)
+  end
+}}
+
+# Export options.
+
+lib{$name}:
+{
+  cc.type = cxx
+  cc.export.poptions = "-I$out_base/include"
+  cc.export.libs = $intf_libs
+}
+
+lib/liba{**}: install = false
+
+exe{*}:
+{
+  install         = bin/
+}
+
+include/hxx{*}:
+{
+  install         = include/$project/
+  install.subdirs = true
+}

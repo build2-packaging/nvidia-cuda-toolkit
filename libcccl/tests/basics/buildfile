@@ -1,0 +1,3 @@
+import libs = libcccl%lib{cccl}
+
+exe{driver}: cxx{**} $libs testscript{**}

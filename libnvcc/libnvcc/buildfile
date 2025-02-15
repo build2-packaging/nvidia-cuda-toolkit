@@ -1,0 +1,109 @@
+intf_libs =
+
+name = $regex.replace($project, 'lib', '')
+
+source redist.build
+define [see_through] import: group
+
+./: liba{$name}: legal{LICENSE} import{$name} $intf_libs
+
+redist{cuda_nvcc}: $src_root/manifest
+archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_nvcc}
+extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
+import{$name}: extract{archive}: update = match
+
+import{$name}:
+{{
+  o = $directory($>[0])
+  d = $directory($>[0])/$name($>[0]).files
+
+  find "$out_base/bin/" -type f -name "*" \
+    | set -n b [paths]
+  find "$out_base/lib/" -type f -name "*" \
+    | set -n l [paths]
+  find "$out_base/include/" -type f -name "*" \
+    | set -n h [paths]
+
+  depdb dyndep \
+    --dyn-target \
+    --target-cwd "$o" \
+    --target-what 'imported files' \
+    --target-default-type 'h' \
+    --target-extension-type '=h' \
+    --target-extension-type 'h=h' \
+    --target-extension-type 'hpp=h' \
+    --target-extension-type 'so=libs' \
+    --target-extension-type 'dylib=libs' \
+    --target-extension-type 'dll=libs' \
+    --target-extension-type 'lib=liba' \
+    --format lines \
+    --file $d \
+    -- \
+      echo $regex.merge($b $l $h, '(.+)', '\1\n') >$d
+
+  diag import $>
+
+  for t : $filter_out($>, group)
+    touch $path($t)
+  end
+}}
+
+## symlink liba{<name>} files to the actual shared (+import) library
+#  such that we can export a deterministic liba{} target
+liba{$(name).lib}:
+{{
+  libs = $path($filter($<, liba))
+  l = $regex.filter_out_search($libs, '.*nvPTXCompiler_static.*')
+
+  diag ln $l <- $>
+
+  test -f "$path($>[0])" || ln --symbolic "$l" "$path($>[0])"
+  touch "$path($>[0])"
+}}
+
+## symlink exe{<name>} files to the actual executable
+#  such that we can export a deterministic exe{} target
+./: \
+exe{bin2c.exe} \
+exe{cudafe++.exe} \
+exe{fatbinary.exe} \
+exe{nvcc.exe} \
+exe{nvlink.exe} \
+exe{ptxas.exe} \
+: extract{archive}
+{{
+  find "$out_base/bin" -type f -name "*$leaf($path($>))*" \
+    | set e [path]
+
+  diag ln $> $<
+
+  # create symlink to actual file instead of renaming it
+  test -f "$path($>)" || ln --symbolic "$e" "$path($>)"
+  touch "$path($>)"
+}}
+
+if ($cc.target.system == 'mingw32')
+  c.loptions += -Wl,--export-all-symbols
+
+# Export options.
+
+lib{$name}:
+{
+  cc.type = cc
+  cc.export.poptions = "-I$out_base/include"
+  cc.export.libs = $intf_libs
+}
+
+lib/liba{**}: install = false
+
+exe{*}:
+{
+  install         = bin/
+  install.subdirs = true
+}
+
+include/h{*}:
+{
+  install         = include/$project/
+  install.subdirs = true
+}

@@ -1,0 +1,6 @@
+$out_root/
+{
+  include libnvcc/
+}
+
+export $out_root/libnvcc/$import.target

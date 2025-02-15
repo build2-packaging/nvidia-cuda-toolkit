@@ -1,0 +1,17 @@
+: 1
+location: libcccl/
+
+:
+location: libnvcc/
+
+:
+location: libnvrtc/
+
+:
+location: libnvvm/
+
+:
+location: libcudart/
+
+:
+location: libcublas/

@@ -1,0 +1,17 @@
+: 1
+name: libnvvm
+version: 12.8.61-a.0.z
+type: lib,binless
+language: c
+project: nvidia-cuda-toolkit
+summary: NVVM Compiler IR based on the LLVM IR
+license: other: CUDA Toolkit
+description-file: README.md
+url: https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.8.0.json
+email: NVSDKIssues@nvidia.com
+package-email: packaging@build2.org ; Mailing list.
+#build-error-email: helmesjo@gmail.com
+depends: * build2 >= 0.17.0
+depends: * bpkg >= 0.17.0
+depends: libnvcc ^ $
+depends: libnvrtc ^ $

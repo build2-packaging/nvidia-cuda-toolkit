@@ -1,0 +1,6 @@
+$out_root/
+{
+  include libnvvm/
+}
+
+export $out_root/libnvvm/$import.target

@@ -1,0 +1,9 @@
+import libs = libnvvm%libs{nvvm}
+
+# make sure executables are importable
+import! all = \
+  libnvvm%exe{cicc}
+
+exe{driver}: c{**} $libs testscript{**} $all
+
+c.loptions += -NODEFAULTLIB:LIBCMT

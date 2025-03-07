@@ -6,6 +6,13 @@ archive{*}: extension = tar
 
 define extract: group
 
+# for build2 to not error out when it
+# sees the libi target (import library)
+if ($cc.target.class != 'windows')
+{
+  define libi: file
+}
+
 redist{~'/(.+)/'}:
 {{
   n = $name($>)

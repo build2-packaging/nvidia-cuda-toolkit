@@ -10,12 +10,16 @@ redist{~'/(.+)/'}:
 {{
   n = $name($>)
 
+  # 'b dist' may cap width, so join escaped lines.
   cat $path($<) \
-    | sed -n -e 's/url: (.*)$/\1/p' \
+    | set m [strings]
+  m = $regex.apply($m, '\\\n', '')
+  echo $m \
+    | sed -n -e 's/url:\s*(.*)$/\1/p' \
     | set url [string]
 
-  cat $path($<) \
-    | sed -n -e 's/version: ([0-9.]+).*$/\1/p' \
+  echo $m \
+    | sed -n -e 's/version:\s*([0-9.]+).*$/\1/p' \
     | set local [string]
 
   diag curl $url -> $>

@@ -17,7 +17,7 @@ import{$name}: extract{archive}: update = match
 import{$name}:
 {{
   o = $directory($>[0])
-  d = $directory($>[0])/$name($>[0]).files
+  d = $o/$name($>[0]).files
 
   find "$out_base/bin/" -type f -name "*" \
     | set -n l [paths]

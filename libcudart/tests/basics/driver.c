@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
 
-#ifdef NDEBUG
 #undef NDEBUG
-#endif
 
 #include <assert.h>
 #include <stdio.h>

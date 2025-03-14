@@ -10,6 +10,7 @@ description-file: README.md
 url: https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.8.0.json
 email: NVSDKIssues@nvidia.com
 package-email: packaging@build2.org ; Mailing list.
-#build-error-email: helmesjo@gmail.com
+build-error-email: helmesjo@gmail.com
+builds: none; Times out downloading large binaries
 depends: * build2 >= 0.17.0
 depends: * bpkg >= 0.17.0

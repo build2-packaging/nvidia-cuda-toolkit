@@ -1,4 +1,4 @@
-# nvidia-cuda-toolkit - NVIDIA® CUDA® Toolkit Development Environment
+# NVIDIA® CUDA® Toolkit Development Environment
 
 The NVIDIA® CUDA® Toolkit provides a development environment for creating high-performance,
 GPU-accelerated applications. With it, you can develop, optimize, and deploy your applications

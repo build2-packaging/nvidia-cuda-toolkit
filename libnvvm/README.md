@@ -12,7 +12,7 @@ To start using `libnvvm` in your project, add the following `depends`
 value to your `manifest`, adjusting the version constraint as appropriate:
 
 ```
-depends: libnvvm ^<VERSION>
+depends: libnvvm ^12.8.0
 ```
 
 Then import the library in your `buildfile`:

@@ -14,13 +14,13 @@ To start using `libcudart` in your project, add the following `depends`
 value to your `manifest`, adjusting the version constraint as appropriate:
 
 ```
-depends: libcudart ^<VERSION>
+depends: libcudart ^12.8.0
 ```
 
 Then import the library in your `buildfile`:
 
 ```
-import libs = libcudart%lib{cudart}
+import libs = libcudart%libs{cudart}
 ```
 
 
@@ -29,5 +29,5 @@ import libs = libcudart%lib{cudart}
 This package provides the following importable targets:
 
 ```
-lib{cudart}
+libs{cudart}
 ```

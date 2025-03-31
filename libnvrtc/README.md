@@ -14,13 +14,13 @@ To start using `libnvrtc` in your project, add the following `depends`
 value to your `manifest`, adjusting the version constraint as appropriate:
 
 ```
-depends: libnvrtc ^<VERSION>
+depends: libnvrtc ^12.8.0
 ```
 
 Then import the library in your `buildfile`:
 
 ```
-import libs = libnvrtc%lib{nvrtc}
+import libs = libnvrtc%libs{nvrtc}
 ```
 
 
@@ -29,5 +29,5 @@ import libs = libnvrtc%lib{nvrtc}
 This package provides the following importable targets:
 
 ```
-lib{nvrtc}
+libs{nvrtc}
 ```

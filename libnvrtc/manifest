@@ -1,6 +1,6 @@
 : 1
 name: libnvrtc
-version: 12.8.0-a.0.z
+version: 12.8.0
 upstream-version: 12.8.61
 type: lib,binless
 language: c++

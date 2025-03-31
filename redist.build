@@ -22,13 +22,12 @@ redist{~'/(.+)/'}:
     | set m [strings]
   m = $regex.apply($m, '\\\n', '')
   echo $m \
-    | sed -n -e 's/url:\s*(.*)$/\1/p' \
+    | sed -n -e 's/^url:\s*(.*)$/\1/p' \
     | set url [string]
 
   echo $m \
-    | sed -n -e 's/version:\s*([0-9.]+).*$/\1/p' \
+    | sed -n -e 's/^upstream-version:\s*([0-9.]+).*$/\1/p' \
     | set version [string]
-  vlocal_maj_min = $regex.apply($version, '^([0-9]+\.[0-9]+).*', '\1')
 
   diag curl $url -> $>
 
@@ -41,11 +40,9 @@ redist{~'/(.+)/'}:
 
   # upstream differ in patch-version for the different packages,
   # so we limit the hard requirement to just maj.min.<any>
-  if (!$contains($pkg_version, $vlocal_maj_min))
-    echo "[error] $n version mismatch: v$vlocal_maj_min \(local) != v$pkg_version \(remote)"
+  if (!$contains($pkg_version, $version))
+    echo "[error] $n version mismatch: v$version \(local) != v$pkg_version \(remote)"
     exit 1
-  elif (!$contains($pkg_version, $version))
-    echo "[warning] $n patch version mismatch: v$version \(local) != v$pkg_version \(remote)"
   end
 
   if ($null(($json["base_url"])))

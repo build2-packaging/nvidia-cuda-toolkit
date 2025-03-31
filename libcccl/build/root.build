@@ -9,10 +9,6 @@ using cxx
 hxx{*}: extension = h
 cxx{*}: extension = c
 
-# The test target for cross-testing (running tests under Wine, etc).
-#
-test.target = $cxx.target
-
 # Only Windows is currently supported.
 #
 if ($cc.target.class != 'windows')

@@ -21,7 +21,6 @@ For example:
 ```
 git clone https://github.com/build2-packaging/nvidia-cuda-toolkit
 cd nvidia-cuda-toolkit
-git submodule update --init
 
 bdep init -C @msvc c config.c=cl.exe
 bdep update

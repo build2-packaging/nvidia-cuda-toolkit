@@ -1,13 +1,17 @@
 # NVIDIA® CUDA® Toolkit Development Environment
 
-The NVIDIA® CUDA® Toolkit provides a development environment for creating high-performance,
-GPU-accelerated applications. With it, you can develop, optimize, and deploy your applications
-on GPU-accelerated embedded systems, desktop workstations, enterprise data centers,
-cloud-based platforms, and supercomputers. The toolkit includes GPU-accelerated libraries,
-debugging and optimization tools, a C/C++ compiler, and a runtime library.
+This is a `build2` package repository for [NVIDIA® CUDA® Toolkit](https://developer.nvidia.com/cuda-toolkit).
+Note that it currently does not contain all of the packages.
+
+The NVIDIA® CUDA® Toolkit provides a development environment for creating
+high-performance, GPU-accelerated applications. With it, you can develop,
+optimize, and deploy your applications on GPU-accelerated embedded systems,
+desktop workstations, enterprise data centers, cloud-based platforms, and
+supercomputers. The toolkit includes GPU-accelerated libraries, debugging
+and optimization tools, a C/C++ compiler, and a runtime library.
 
 This file contains setup instructions and other details that are more
-appropriate for development rather than consumption. If you want to use
+appropriate for package development rather than consumption. If you want to use
 `nvidia-cuda-toolkit` in your `build2`-based project, then instead see the accompanying
 package(s) corresponding [`README.md`](libcudart/README.md) file.
 

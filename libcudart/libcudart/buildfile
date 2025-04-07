@@ -87,7 +87,7 @@ import{$name}:
                         "-NAME:$n" "-MACHINE:$m" $path($impllibs) >! 2>&1
 }}
 
-if ($c.target.system == 'mingw32')
+if ($cc.target.system == 'mingw32')
   c.loptions += -Wl,--export-all-symbols
 
 # Export options.

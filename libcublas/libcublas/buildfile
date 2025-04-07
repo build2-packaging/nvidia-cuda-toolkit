@@ -8,8 +8,8 @@ define [see_through] import: group
 ./: libs{$name}: legal{LICENSE} $intf_libs import{$name}
 
 redist{lib$name}: $src_root/manifest
-archive{$c.target.class-$c.target.cpu-$version-archive.tar}: redist{lib$name}
-extract{archive}: archive{$c.target.class-$c.target.cpu-$version-archive.tar}
+archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{lib$name}
+extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
 import{$name}: extract{archive}: update = match
 
 import{$name}:
@@ -85,7 +85,7 @@ import{$name}:
                         "-NAME:$n" "-MACHINE:$m" $path($impllibs) >! 2>&1
 }}
 
-if ($c.target.system == 'mingw32')
+if ($cc.target.system == 'mingw32')
   c.loptions += -Wl,--export-all-symbols
 
 # Export options.

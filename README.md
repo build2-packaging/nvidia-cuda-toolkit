@@ -1,5 +1,14 @@
 # NVIDIA® CUDA® Toolkit Development Environment
 
+> **NOTE:**  
+These packages are not open source and do not contain any source code. Instead,
+in order to "build" the exported target(s) they download (potentially large)
+pre-built binaries provided by NVIDIA for the target platform.
+>
+> CI for these packages are disabled due to the above.  
+Supported platforms/compilers are Windows/MSVC. Linux binaries exist but are
+currently not available through these packages.
+
 This is a `build2` package repository for [NVIDIA® CUDA® Toolkit](https://developer.nvidia.com/cuda-toolkit).
 Note that it currently does not contain all of the packages.
 

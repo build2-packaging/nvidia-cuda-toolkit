@@ -1,0 +1,9 @@
+: 1
+name: libnvvm
+version: 12.8.0+1
+upstream-version: 12.8.61
+type: lib,binless
+language: c
+project: nvidia-cuda-toolkit
+summary: NVVM Compiler IR based on the LLVM IR
+license: other: CUDA Toolkit

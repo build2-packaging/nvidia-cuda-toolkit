@@ -1,0 +1,9 @@
+: 1
+name: libcudart
+version: 12.8.0+2
+upstream-version: 12.8.57
+type: lib,binless
+language: c++
+project: nvidia-cuda-toolkit
+summary: CUDA Runtime Library
+license: other: CUDA Toolkit

@@ -15,4 +15,4 @@ build-error-email: helmesjo@gmail.com
 builds: none; Times out downloading large binaries
 depends: * build2 >= 0.17.0
 depends: * bpkg >= 0.17.0
-depends: libcudart ^ $
+depends: cuda-cudart ^ $

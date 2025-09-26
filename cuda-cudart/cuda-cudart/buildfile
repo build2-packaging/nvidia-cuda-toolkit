@@ -2,7 +2,7 @@ import intf_libs = \
   cuda-cccl%lib{cccl} \
   cuda-nvcc%liba{nvcc}
 
-name = $regex.replace($project, 'lib', '')
+name = $regex.replace($project, 'cuda-', '')
 
 source redist.build
 define [see_through] import: group

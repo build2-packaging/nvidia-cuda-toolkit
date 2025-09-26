@@ -1,4 +1,4 @@
-project = libcudart
+project = cuda-cudart
 
 using version
 using config

@@ -1,4 +1,4 @@
-# libcudart - A C library
+# cuda-cudart - A C library
 
 > **NOTE:**  
 This package is not open source and does not contain any source code. Instead,
@@ -19,17 +19,17 @@ execution of parallel algorithms.
 
 ## Usage
 
-To start using `libcudart` in your project, add the following `depends`
+To start using `cuda-cudart` in your project, add the following `depends`
 value to your `manifest`, adjusting the version constraint as appropriate:
 
 ```
-depends: libcudart ^12.8.0
+depends: cuda-cudart ^12.8.0
 ```
 
 Then import the library in your `buildfile`:
 
 ```
-import libs = libcudart%libs{cudart}
+import libs = cuda-cudart%libs{cudart}
 ```
 
 

@@ -22,7 +22,7 @@ and optimization tools, a C/C++ compiler, and a runtime library.
 This file contains setup instructions and other details that are more
 appropriate for package development rather than consumption. If you want to use
 `nvidia-cuda-toolkit` in your `build2`-based project, then instead see the accompanying
-package(s) corresponding [`README.md`](libcudart/README.md) file.
+package(s) corresponding [`README.md`](cuda-cudart/README.md) file.
 
 The development setup for `nvidia-cuda-toolkit` uses the standard `bdep`-based workflow.
 For example:

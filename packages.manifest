@@ -11,7 +11,7 @@ location: cuda-nvrtc/
 location: libnvvm/
 
 :
-location: libcudart/
+location: cuda-cudart/
 
 :
 location: libcublas/

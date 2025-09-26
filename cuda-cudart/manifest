@@ -1,5 +1,5 @@
 : 1
-name: libcudart
+name: cuda-cudart
 version: 12.8.0+2
 upstream-version: 12.8.57
 type: lib,binless

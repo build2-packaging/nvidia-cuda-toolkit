@@ -1,0 +1,6 @@
+$out_root/
+{
+  include cuda-cccl/
+}
+
+export $out_root/cuda-cccl/$import.target

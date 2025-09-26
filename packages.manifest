@@ -1,5 +1,5 @@
 : 1
-location: libcccl/
+location: cuda-cccl/
 
 :
 location: libnvcc/

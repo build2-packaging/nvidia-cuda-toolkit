@@ -34,6 +34,10 @@ redist{~'/(.+)/'}:
   curl -\# --fail "$url" | set json [json]
 
   json         = [json] ($json["$n"])
+  if $null($json)
+    echo "[error] key '$n' not found in json"
+    exit 1
+  end
   pkg          = [json] ($json["$cc.target.class-$cc.target.cpu"])
   pkg_version  = [string] ($json["version"])
   archive      = [path] "$directory($url)/([string] $pkg["relative_path"])"

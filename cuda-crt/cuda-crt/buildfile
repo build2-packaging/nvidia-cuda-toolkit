@@ -1,0 +1,74 @@
+intf_libs =
+
+name = $regex.replace($project, 'cuda-', '')
+
+source redist.build
+define [see_through] import: group
+
+./: lib{$name}: legal{LICENSE} import{$name} $intf_libs
+
+redist{cuda_$name}: $src_root/manifest
+archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_$name}
+extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
+import{$name}: extract{archive}: update = match
+
+import{$name}:
+{{
+  o = $directory($>[0])
+  d = $o/$name($>[0]).files
+
+  find "$out_base/include/" -type f -name "*" \
+    | set -n h [paths]
+
+  depdb dyndep \
+    --dyn-target \
+    --target-cwd "$o" \
+    --target-what 'imported files' \
+    --target-default-type 'h' \
+    --target-extension-type '=h' \
+    --target-extension-type 'h=h' \
+    --target-extension-type 'hpp=h' \
+    --target-extension-type 'so=libs' \
+    --target-extension-type 'dylib=libs' \
+    --target-extension-type 'dll=libs' \
+    --target-extension-type 'lib=libi' \
+    --format lines \
+    --file $d \
+    -- \
+      echo $regex.merge($l $i $h, '(.+)', '\1\n') >$d
+
+  diag import $>
+
+  for t : $filter_out($>, group)
+    touch $path($t)
+  end
+}}
+
+if ($cc.target.system == 'mingw32')
+  c.loptions += -Wl,--export-all-symbols
+
+# Export options.
+
+lib{$name}:
+{
+  cc.type = cc
+  cc.export.poptions = "-I$out_base/include"
+  cc.export.libs = $intf_libs
+}
+
+# TODO: Handle shared lib installation.
+#       Specifically don't install the "alias" lib
+#       that just symlinks the real one. Only
+#       install the latter & fix pkg-config targets.
+
+exe{*}:
+{
+  install         = bin/
+  install.subdirs = true
+}
+
+crt/include/h{*}:
+{
+  install         = include/$project/
+  install.subdirs = true
+}

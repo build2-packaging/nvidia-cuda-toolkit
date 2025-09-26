@@ -1,17 +1,14 @@
 : 1
 location: libcccl/
-
 :
-location: libnvcc/
-
-:
-location: libnvrtc/
-
-:
-location: libnvvm/
-
-:
-location: libcudart/
-
+location: cuda-crt/
 :
 location: libcublas/
+:
+location: libcudart/
+:
+location: libnvcc/
+:
+location: libnvrtc/
+:
+location: libnvvm/

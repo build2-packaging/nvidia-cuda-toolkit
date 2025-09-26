@@ -1,0 +1,5 @@
+import libs = cuda-crt%lib{crt}
+
+exe{driver}: c{**} $libs testscript{**}
+
+c.loptions += -NODEFAULTLIB:LIBCMT

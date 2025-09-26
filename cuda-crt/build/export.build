@@ -1,0 +1,6 @@
+$out_root/
+{
+  include cuda-crt/
+}
+
+export $out_root/cuda-crt/$import.target

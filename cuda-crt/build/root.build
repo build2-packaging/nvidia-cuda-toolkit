@@ -1,0 +1,13 @@
+# Uncomment to suppress warnings coming from external libraries.
+#
+#c.internal.scope = current
+
+using c
+
+h{*}: extension = h
+c{*}: extension = c
+
+# Only Windows is currently supported.
+#
+if ($cc.target.class != 'windows')
+  fail 'Only Windows is currently supported'

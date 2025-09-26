@@ -1,4 +1,4 @@
-project = libnvcc
+project = cuda-nvcc
 
 using version
 using config

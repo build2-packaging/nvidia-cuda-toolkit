@@ -2,7 +2,7 @@
 location: cuda-cccl/
 
 :
-location: libnvcc/
+location: cuda-nvcc/
 
 :
 location: cuda-nvrtc/

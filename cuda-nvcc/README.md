@@ -1,4 +1,4 @@
-# libnvcc - A C library
+# cuda-nvcc - A C library
 
 > **NOTE:**  
 This package is not open source and does not contain any source code. Instead,
@@ -21,17 +21,17 @@ host compiler command line options.
 
 ## Usage
 
-To start using `libnvcc` in your project, add the following `depends`
+To start using `cuda-nvcc` in your project, add the following `depends`
 value to your `manifest`, adjusting the version constraint as appropriate:
 
 ```
-depends: libnvcc ^12.8.0
+depends: cuda-nvcc ^12.8.0
 ```
 
 Then import the library in your `buildfile`:
 
 ```
-import libs = libnvcc%liba{nvcc}
+import libs = cuda-nvcc%liba{nvcc}
 ```
 
 

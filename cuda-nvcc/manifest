@@ -1,5 +1,5 @@
 : 1
-name: libnvcc
+name: cuda-nvcc
 version: 12.8.0+2
 upstream-version: 12.8.61
 type: lib,binless

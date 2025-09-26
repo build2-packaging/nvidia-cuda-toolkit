@@ -1,0 +1,14 @@
+import libs = cuda-nvcc%liba{nvcc}
+
+# make sure executables are importable
+import! all = \
+  cuda-nvcc%exe{bin2c} \
+  cuda-nvcc%exe{cudafe++} \
+  cuda-nvcc%exe{fatbinary} \
+  cuda-nvcc%exe{nvcc} \
+  cuda-nvcc%exe{nvlink} \
+  cuda-nvcc%exe{ptxas}
+
+exe{driver}: {c}{**} $libs testscript{**} $all
+
+c.loptions += -NODEFAULTLIB:LIBCMT

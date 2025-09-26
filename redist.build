@@ -35,7 +35,7 @@ redist{~'/(.+)/'}:
 
   json         = [json] ($json["$n"])
   if $null($json)
-    echo "[error] key '$n' not found in json"
+    echo "[error] key '$n' not found in json" >&2
     exit 1
   end
   pkg          = [json] ($json["$cc.target.class-$cc.target.cpu"])
@@ -45,7 +45,7 @@ redist{~'/(.+)/'}:
   # upstream differ in patch-version for the different packages,
   # so we limit the hard requirement to just maj.min.<any>
   if (!$contains($pkg_version, $version))
-    echo "[error] $n version mismatch: v$version \(local) != v$pkg_version \(remote)"
+    echo "[error] $n version mismatch: v$version \(local) != v$pkg_version \(remote)" >&2
     exit 1
   end
 

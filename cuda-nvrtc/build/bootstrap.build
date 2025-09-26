@@ -1,4 +1,4 @@
-project = libnvrtc
+project = cuda-nvrtc
 
 using version
 using config

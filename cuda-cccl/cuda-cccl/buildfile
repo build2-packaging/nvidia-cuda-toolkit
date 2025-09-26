@@ -1,6 +1,6 @@
 import intf_libs = \
   libnvcc%liba{nvcc} \
-  libnvrtc%libs{nvrtc}
+  cuda-nvrtc%libs{nvrtc}
 
 name = $regex.replace($project, 'cuda-', '')
 

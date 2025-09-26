@@ -1,4 +1,4 @@
-# libnvrtc - A C library
+# cuda-nvrtc - A C library
 
 > **NOTE:**  
 This package is not open source and does not contain any source code. Instead,
@@ -19,17 +19,17 @@ in a purely offline static compilation.
 
 ## Usage
 
-To start using `libnvrtc` in your project, add the following `depends`
+To start using `cuda-nvrtc` in your project, add the following `depends`
 value to your `manifest`, adjusting the version constraint as appropriate:
 
 ```
-depends: libnvrtc ^12.8.0
+depends: cuda-nvrtc ^12.8.0
 ```
 
 Then import the library in your `buildfile`:
 
 ```
-import libs = libnvrtc%libs{nvrtc}
+import libs = cuda-nvrtc%libs{nvrtc}
 ```
 
 

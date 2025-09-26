@@ -1,6 +1,6 @@
 intf_libs =
 
-name = $regex.replace($project, 'lib', '')
+name = $regex.replace($project, 'cuda-', '')
 
 source redist.build
 define [see_through] import: group

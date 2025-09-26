@@ -5,7 +5,7 @@ location: cuda-cccl/
 location: libnvcc/
 
 :
-location: libnvrtc/
+location: cuda-nvrtc/
 
 :
 location: libnvvm/

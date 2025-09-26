@@ -9,6 +9,6 @@ location: libcudart/
 :
 location: libnvcc/
 :
-location: libnvrtc/
+location: cuda-nvrtc/
 :
 location: libnvvm/

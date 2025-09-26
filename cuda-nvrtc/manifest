@@ -1,5 +1,5 @@
 : 1
-name: libnvrtc
+name: cuda-nvrtc
 version: 13.0.1-a.0.z
 upstream-version: 13.0.88
 type: lib,binless

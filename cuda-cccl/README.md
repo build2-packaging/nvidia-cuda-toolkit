@@ -1,4 +1,4 @@
-# libcccl - A C++ library
+# cuda-cccl - A C++ library
 
 > **NOTE:**  
 This package is not open source and does not contain any source code. Instead,
@@ -17,17 +17,17 @@ your ability to leverage the power of CUDA C++.
 
 ## Usage
 
-To start using `libcccl` in your project, add the following `depends`
+To start using `cuda-cccl` in your project, add the following `depends`
 value to your `manifest`, adjusting the version constraint as appropriate:
 
 ```
-depends: libcccl ^13.0.1
+depends: cuda-cccl ^13.0.1
 ```
 
 Then import the library in your `buildfile`:
 
 ```
-import libs = libcccl%lib{cccl}
+import libs = cuda-cccl%lib{cccl}
 ```
 
 

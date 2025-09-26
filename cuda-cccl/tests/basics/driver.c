@@ -7,5 +7,5 @@
 #include <stdio.h>
 
 int main() {
-  printf("libcccl - _CCCL_STD_VER: %d\n", _CCCL_STD_VER);
+  printf("cuda-cccl - _CCCL_STD_VER: %d\n", _CCCL_STD_VER);
 }

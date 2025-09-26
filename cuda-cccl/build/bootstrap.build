@@ -1,4 +1,4 @@
-project = libcccl
+project = cuda-cccl
 
 using version
 using config

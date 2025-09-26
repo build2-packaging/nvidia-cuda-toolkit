@@ -1,5 +1,5 @@
 : 1
-name: libcccl
+name: cuda-cccl
 version: 13.0.1-a.0.z
 upstream-version: 13.0.85
 type: lib,binless

@@ -1,4 +1,5 @@
-intf_libs =
+import intf_libs = \
+  cuda-crt%lib{crt}
 
 name = $regex.replace($project, 'lib', '')
 
@@ -7,8 +8,8 @@ define [see_through] import: group
 
 ./: liba{$name}: legal{LICENSE} import{$name} $intf_libs
 
-redist{cuda_nvcc}: $src_root/manifest
-archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_nvcc}
+redist{cuda_$name}: $src_root/manifest
+archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_$name}
 extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
 import{$name}: extract{archive}: update = match
 
@@ -19,8 +20,6 @@ import{$name}:
 
   find "$out_base/bin/" -type f -name "*" \
     | set -n b [paths]
-  find "$out_base/lib/" -type f -name "*" \
-    | set -n l [paths]
   find "$out_base/include/" -type f -name "*" \
     | set -n h [paths]
 
@@ -48,19 +47,6 @@ import{$name}:
   end
 }}
 
-## symlink liba{<name>} files to the actual shared (+import) library
-#  such that we can export a deterministic liba{} target
-liba{$(name).lib}:
-{{
-  libs = $path($filter($<, liba))
-  l = $regex.filter_out_search($libs, '.*nvPTXCompiler_static.*')
-
-  diag ln $l <- $>
-
-  test -f "$path($>[0])" || ln --symbolic "$l" "$path($>[0])"
-  touch "$path($>[0])"
-}}
-
 ## symlink exe{<name>} files to the actual executable
 #  such that we can export a deterministic exe{} target
 ./: \
@@ -70,7 +56,8 @@ exe{fatbinary.exe} \
 exe{nvcc.exe} \
 exe{nvlink.exe} \
 exe{ptxas.exe} \
-: extract{archive}
+exe{__nvcc_device_query.exe} \
+: extract{archive} testscript
 {{
   find "$out_base/bin" -type f -name "*$leaf($path($>))*" \
     | set e [path]

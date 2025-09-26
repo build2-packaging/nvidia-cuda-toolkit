@@ -1,4 +1,5 @@
 #include <cuda/version>
+#include <nv/target>
 
 #undef NDEBUG
 

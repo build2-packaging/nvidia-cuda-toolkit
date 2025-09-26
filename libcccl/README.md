@@ -21,7 +21,7 @@ To start using `libcccl` in your project, add the following `depends`
 value to your `manifest`, adjusting the version constraint as appropriate:
 
 ```
-depends: libcccl ^12.8.0
+depends: libcccl ^13.0.1
 ```
 
 Then import the library in your `buildfile`:

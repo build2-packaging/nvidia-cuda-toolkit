@@ -20,7 +20,7 @@ To start using `cuda-crt` in your project, add the following `depends`
 value to your `manifest`, adjusting the version constraint as appropriate:
 
 ```
-depends: cuda-crt ^12.8.0
+depends: cuda-crt ^13.0.1
 ```
 
 Then import the library in your `buildfile`:

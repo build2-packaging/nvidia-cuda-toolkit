@@ -54,27 +54,15 @@ import{$name}:
 #  libi{<name>} from all extracted import libraries.
 <libs{$(name).dll} libi{$(name).dll.lib}>:
 {{
-  n    = $name($>[0])
-  libs = ($filter($<, libi))
+  n     = $name($>[0])
+  ilibs = ($filter($<, libi))
 
-  $effect($bin.ld.path) -DUMP -NOLOGO -HEADERS $path($libs[0]) \
+  $effect($bin.ld.path) -DUMP -NOLOGO -HEADERS $path($ilibs[0]) \
    | sed -n -e 's/.*machine \((.*)\)/\1/p' \
    | set -w m
   m = ($m[0])
 
-  # extract all import libraries
-  implibs =
-  for l : $libs
-    $effect($bin.ld.path) -DUMP -NOLOGO -HEADERS $path($l) | \
-      sed -n -e 's/idata//p' | \
-      set i [string]
-
-    if (!$empty($i))
-      impllibs += $l
-    end
-  end
-
-  diag $name($bin.ar.path) $impllibs $>
+  diag $name($bin.ar.path) $ilibs $>
 
   # create a dummy libs{<name>} as this is only acting as
   # an 'alias' target, essentially creating a phony lib.
@@ -82,8 +70,9 @@ import{$name}:
 
   # combine all import libraries to one
   $effect($bin.ar.path) -NOLOGO "-OUT:$path($>[1])" \
-                        "-NAME:$n" "-MACHINE:$m" $path($impllibs) >! 2>&1
+                        "-NAME:$n" "-MACHINE:$m" $path($ilibs) >! 2>&1
 }}
+
 
 if ($cc.target.system == 'mingw32')
   c.loptions += -Wl,--export-all-symbols

@@ -9,8 +9,8 @@ define [see_through] import: group
 
 ./: lib{$name}: import{$name} $intf_libs
 
-redist{cuda_cccl}: $src_root/manifest
-archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_cccl}
+redist{cuda_$name}: $src_root/manifest
+archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_$name}
 extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
 import{$name}: extract{archive}: update = match
 
@@ -54,7 +54,7 @@ import{$name}:
 lib{$name}:
 {
   cc.type = cxx
-  cc.export.poptions = "-I$out_base/include"
+  cc.export.poptions = "-I$out_base/include" "-I$out_base/include/cccl"
   cc.export.libs = $intf_libs
 }
 

@@ -1,14 +1,14 @@
 : 1
 name: libcccl
 version: 13.0.1-a.0.z
-upstream-version: 12.8.55
+upstream-version: 13.0.85
 type: lib,binless
 language: c++
 project: nvidia-cuda-toolkit
 summary: C++ Core Compute Libraries
 license: other: CUDA Toolkit
 description-file: README.md
-url: https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.8.0.json
+url: https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.1.json
 email: NVSDKIssues@nvidia.com
 package-email: packaging@build2.org ; Mailing list.
 build-error-email: helmesjo@gmail.com

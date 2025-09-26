@@ -10,6 +10,12 @@
 
 int main() {
   int version = 0;
+  int supported = cudaDriverGetVersion(&version) == cudaSuccess;
+  if(!supported)
+  {
+    printf("libcudart - unsupported device\n");
+    return 0;
+  }
   // returns success with version 0 if no
   // cuda driver (& GPU) is available.
   assert(cudaDriverGetVersion(&version) == cudaSuccess);

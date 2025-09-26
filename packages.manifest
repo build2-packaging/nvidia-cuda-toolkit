@@ -7,7 +7,7 @@ location: libcublas/
 :
 location: libcudart/
 :
-location: libnvcc/
+location: cuda-nvcc/
 :
 location: cuda-nvrtc/
 :

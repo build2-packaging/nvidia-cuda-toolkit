@@ -1,0 +1,6 @@
+$out_root/
+{
+  include cuda-nvcc/
+}
+
+export $out_root/cuda-nvcc/$import.target

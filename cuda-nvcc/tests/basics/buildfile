@@ -1,4 +1,4 @@
-import libs = cuda-nvcc%liba{nvcc}
+import libs = cuda-nvcc%lib{nvcc}
 
 # make sure executables are importable
 import! all = \

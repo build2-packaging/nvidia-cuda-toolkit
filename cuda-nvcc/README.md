@@ -31,7 +31,7 @@ depends: cuda-nvcc ^13.0.1
 Then import the library in your `buildfile`:
 
 ```
-import libs = cuda-nvcc%liba{nvcc}
+import libs = cuda-nvcc%lib{nvcc}
 ```
 
 
@@ -40,7 +40,7 @@ import libs = cuda-nvcc%liba{nvcc}
 This package provides the following importable targets:
 
 ```
-liba{nvcc}
+lib{nvcc}
 exe{bin2c}
 exe{cudafe++}
 exe{fatbinary}

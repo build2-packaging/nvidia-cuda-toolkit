@@ -6,7 +6,7 @@ name = $regex.replace($project, 'cuda-', '')
 source redist.build
 define [see_through] import: group
 
-./: liba{$name}: legal{LICENSE} import{$name} $intf_libs
+./: lib{$name}: legal{LICENSE} import{$name} $intf_libs
 
 redist{cuda_$name}: $src_root/manifest
 archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_$name}

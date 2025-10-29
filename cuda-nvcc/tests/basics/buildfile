@@ -10,5 +10,3 @@ import! all = \
   cuda-nvcc%exe{ptxas}
 
 exe{driver}: {c}{**} $libs testscript{**} $all
-
-c.loptions += -NODEFAULTLIB:LIBCMT

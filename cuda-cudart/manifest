@@ -1,14 +1,14 @@
 : 1
 name: cuda-cudart
 version: 13.0.2-a.0.z
-upstream-version: 13.0.88
+upstream-version: 13.0.96
 type: lib,binless
 language: c++
 project: nvidia-cuda-toolkit
 summary: CUDA Runtime Library
 license: other: CUDA Toolkit
 description-file: README.md
-url: https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.1.json
+url: https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.2.json
 email: NVSDKIssues@nvidia.com
 package-email: packaging@build2.org ; Mailing list.
 build-error-email: helmesjo@gmail.com

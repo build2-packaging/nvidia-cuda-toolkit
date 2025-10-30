@@ -24,9 +24,9 @@ import{$name}:
   find "$out_base/lib/" -type f -name "*" \
     | set -n i [paths]
   # @@ NOTE: All import libraries except cudart.lib (main import library)
-  #          injects LIBCMT for some unknown reason, and that pollutes
-  #          consumers (triggers warning LNK4098). So we filter those out.
-  i = $regex.filter_search($i, '.*cudart\.lib')
+  #          injects LIBCMT for some unknown reason (v13.0.1), and that pollutes
+  #          consumers (triggers warning LNK4098).
+  i = $regex.filter_out_search($i, '.*static.*')
   find "$out_base/include/" -type f -name "*" \
     | set -n h [paths]
 

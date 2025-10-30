@@ -1,6 +1,6 @@
 : 1
 name: cuda-nvcc
-version: 13.0.1-a.0.z
+version: 13.0.1
 upstream-version: 13.0.88
 type: lib,binless
 language: c

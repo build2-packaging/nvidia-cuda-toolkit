@@ -1,6 +1,6 @@
 : 1
 name: cuda-nvrtc
-version: 12.8.0+2
+version: 12.8.0+3
 upstream-version: 12.8.61
 type: lib,binless
 language: c++

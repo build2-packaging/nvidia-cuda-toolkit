@@ -1,0 +1,9 @@
+: 1
+name: libcublas
+version: 12.8.0+3
+upstream-version: 12.8.3
+type: lib,binless
+language: c
+project: nvidia-cuda-toolkit
+summary: GPU-accelerated library for AI and HPC applications
+license: other: CUDA Toolkit

@@ -1,0 +1,9 @@
+: 1
+name: cuda-nvcc
+version: 12.8.0+3
+upstream-version: 12.8.61
+type: lib,binless
+language: c
+project: nvidia-cuda-toolkit
+summary: CUDA Compiler Driver
+license: other: CUDA Toolkit

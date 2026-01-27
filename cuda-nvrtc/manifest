@@ -3,7 +3,7 @@ name: cuda-nvrtc
 version: 13.0.2+1
 upstream-version: 13.0.88
 type: lib,binless
-language: c++
+language: c
 project: nvidia-cuda-toolkit
 summary: CUDA C++ Runtime Compilation Library
 license: other: CUDA Toolkit

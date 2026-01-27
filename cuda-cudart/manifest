@@ -3,7 +3,7 @@ name: cuda-cudart
 version: 13.0.2+1
 upstream-version: 13.0.96
 type: lib,binless
-language: c++
+language: c
 project: nvidia-cuda-toolkit
 summary: CUDA Runtime Library
 license: other: CUDA Toolkit

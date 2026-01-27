@@ -5,13 +5,14 @@ name = $regex.replace($project, 'lib', '')
 source redist.build
 define [see_through] import: group
 
-./: libs{$name}: import{legal} $intf_libs import{$name}
+./: libs{$name}: import{legal} import{$name} import{$name-headers} $intf_libs
 
 redist{lib$name}: $src_root/manifest
 archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{lib$name}
 extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
-import{$name}: extract{archive}: update = match
 import{legal}: extract{archive}: update = match
+import{$name}: extract{archive}: update = match
+import{$name-headers}: extract{archive}: update = match
 
 import{legal}:
 {{
@@ -36,6 +37,7 @@ import{legal}:
     touch $path($t)
   end
 }}
+
 import{$name}:
 {{
   o = $directory($>[0])
@@ -46,17 +48,11 @@ import{$name}:
   find "$out_base/lib/" -type f -name "*" \
     | set -n i [paths]
   i = $regex.filter_out_search($i, '.*static.*')
-  find "$out_base/include/" -type f -name "*" \
-    | set -n h [paths]
 
   depdb dyndep \
     --dyn-target \
     --target-cwd "$o" \
     --target-what 'imported files' \
-    --target-default-type 'h' \
-    --target-extension-type '=h' \
-    --target-extension-type 'h=h' \
-    --target-extension-type 'hpp=h' \
     --target-extension-type 'so=libs' \
     --target-extension-type 'dylib=libs' \
     --target-extension-type 'dll=libs' \
@@ -64,12 +60,36 @@ import{$name}:
     --format lines \
     --file $d \
     -- \
-      echo $regex.merge($l $i $h, '(.+)', '\1\n') >$d
+      echo $regex.merge($l $i, '(.+)', '\1\n') >$d
 
   diag import $>
 
   for t : $filter_out($>, group)
     touch $path($t)
+  end
+}}
+
+import{$name-headers}:
+{{
+  o = $directory($>[0])
+  d = $o/$name($>[0]).files
+
+  find "$out_base/include/" -type f -name "*" \
+    | set -n f [paths]
+
+  depdb dyndep \
+    --dyn-target \
+    --target-cwd "$o" \
+    --target-what 'headers' \
+    --target-default-type 'h' \
+    --target-extension-type '=h' \
+    --format lines \
+    -- echo $regex.merge($f, '(.+)', '\1\n')
+
+  diag import $>
+
+  for f : $filter($>, h)
+    touch $path($f)
   end
 }}
 

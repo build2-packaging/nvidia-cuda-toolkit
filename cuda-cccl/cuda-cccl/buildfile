@@ -7,13 +7,13 @@ name = $regex.replace($project, 'cuda-', '')
 source redist.build
 define [see_through] import: group
 
-./: lib{$name}: import{legal} import{$name} $intf_libs
+./: lib{$name}: import{legal} import{$name-headers} $intf_libs
 
 redist{cuda_$name}: $src_root/manifest
 archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_$name}
 extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
-import{$name}: extract{archive}: update = match
 import{legal}: extract{archive}: update = match
+import{$name-headers}: extract{archive}: update = match
 
 import{legal}:
 {{
@@ -38,38 +38,32 @@ import{legal}:
     touch $path($t)
   end
 }}
-import{$name}:
+
+import{$name-headers}:
 {{
   o = $directory($>[0])
-  d = $o/$(name).files
+  d = $o/$name($>[0]).files
 
   find "$out_base/include/" -type f -name "*" \
-    | set hdrs [paths]
+    | set -n f [paths]
 
   depdb dyndep \
     --dyn-target \
     --target-cwd "$o" \
-    --target-what 'imported files' \
+    --target-what 'headers' \
     --target-default-type 'hxx' \
     --target-extension-type '=h' \
     --target-extension-type 'h=hxx' \
     --target-extension-type 'hpp=hxx' \
     --target-extension-type 'inl=hxx' \
     --target-extension-type 'cuh=hxx' \
-    --target-extension-type 'a=liba' \
-    --target-extension-type 'so=libs' \
-    --target-extension-type 'dylib=libs' \
-    --target-extension-type 'dll=libs' \
-    --target-extension-type 'lib=liba' \
     --format lines \
-    --file $d \
-    -- \
-      echo $hdrs >$d &!$d
+    -- echo $regex.merge($f, '(.+)', '\1\n')
 
   diag import $>
 
-  for t : $filter_out($>, group)
-    touch $path($t)
+  for f : $filter($>, h hxx)
+    touch $path($f)
   end
 }}
 

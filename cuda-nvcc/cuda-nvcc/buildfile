@@ -51,6 +51,7 @@ import{$name-headers}:
     --target-cwd "$o" \
     --target-what 'headers' \
     --target-default-type 'h' \
+    --target-extension-type '=h' \
     --format lines \
     -- echo $regex.merge($f, '(.+)', '\1\n')
 

@@ -9,6 +9,8 @@ using cxx
 hxx{*}: extension = h
 cxx{*}: extension = c
 
+legal{*}: backlink = false
+
 # Only Windows is currently supported.
 #
 if ($cc.target.class != 'windows')

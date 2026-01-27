@@ -17,8 +17,6 @@ import{$name}:
   o = $directory($>[0])
   d = $o/$name($>[0]).files
 
-  find "$out_base/bin/" -type f -name "*" \
-    | set -n b [paths]
   find "$out_base/lib/" -type f -name "*" \
     | set -n l [paths]
   find "$out_base/include/" -type f -name "*" \
@@ -61,25 +59,41 @@ liba{$(name).lib}:
   touch "$path($>[0])"
 }}
 
-## symlink exe{<name>} files to the actual executable
-#  such that we can export a deterministic exe{} target
-./: \
-exe{bin2c.exe} \
-exe{cudafe++.exe} \
-exe{fatbinary.exe} \
-exe{nvcc.exe} \
-exe{nvlink.exe} \
-exe{ptxas.exe} \
+## import exe{<name>} targets
+# 
+./: bin/exe{*}
+< \
+  bin/exe{bin2c.exe} \
+  bin/exe{cudafe++.exe} \
+  bin/exe{fatbinary.exe} \
+  bin/exe{nvcc.exe} \
+  bin/exe{nvlink.exe} \
+  bin/exe{ptxas.exe} \
+> \
 : extract{archive}
 {{
-  find "$out_base/bin" -type f -name "*$leaf($path($>))*" \
+  o = $directory($>[0])
+  d = $o/$name($>[0]).files
+  e = $filter($<, exe)
+
+  find "$out_base/bin" -type f -name "*\.exe" \
     | set e [path]
 
-  diag ln $> $<
+  depdb dyndep \
+    --dyn-target \
+    --target-cwd "$o" \
+    --target-what 'imported executables' \
+    --target-default-type 'exe' \
+    --target-extension-type '=exe' \
+    --target-extension-type 'exe=exe' \
+    --format lines \
+    -- \
+      echo $regex.merge($e, '(.+)', '\1\n')
 
-  # create symlink to actual file instead of renaming it
-  test -f "$path($>)" || ln --symbolic "$e" "$path($>)"
-  touch "$path($>)"
+  diag import ($>)
+  for t : $filter_out($>, group)
+    touch $path($t)
+  end
 }}
 
 if ($cc.target.system == 'mingw32')

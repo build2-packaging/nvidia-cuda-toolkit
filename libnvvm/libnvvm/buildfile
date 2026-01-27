@@ -101,18 +101,34 @@ import{$name}:
 if ($cc.target.system == 'mingw32')
   c.loptions += -Wl,--export-all-symbols
 
-## symlink exe{<name>} files to the actual executable
-#  such that we can export a deterministic exe{} target
-./: exe{cicc.exe}: extract{archive}
+## import exe{<name>} targets
+# 
+./: bin/exe{*}
+<bin/exe{cicc.exe}> \
+: extract{archive}
 {{
-  find "$out_base/nvvm/bin/" -name "*$leaf($path($>))*" \
-    | set e [paths]
+  o = $directory($>[0])
+  d = $o/$name($>[0]).files
+  e = $filter($<, exe)
 
-  diag ln $>
+  find "$out_base/bin" -type f -name "*\.exe" \
+    | set e [path]
 
-  # create symlink to actual file instead of renaming it
-  test -f "$path($>)" || ln --symbolic "$e" "$path($>)"
-  touch "$path($>)"
+  depdb dyndep \
+    --dyn-target \
+    --target-cwd "$o" \
+    --target-what 'imported executables' \
+    --target-default-type 'exe' \
+    --target-extension-type '=exe' \
+    --target-extension-type 'exe=exe' \
+    --format lines \
+    -- \
+      echo $regex.merge($e, '(.+)', '\1\n')
+
+  diag import ($>)
+  for t : $filter_out($>, group)
+    touch $path($t)
+  end
 }}
 
 # Export options.

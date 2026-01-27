@@ -3,4 +3,7 @@ $out_root/
   include libnvvm/
 }
 
-export $out_root/libnvvm/$import.target
+if ($target_type($import.target) == exe)
+  export $out_root/libnvvm/bin/$import.target
+else
+  export $out_root/libnvvm/$import.target

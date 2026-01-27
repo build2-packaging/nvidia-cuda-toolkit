@@ -1,3 +1,7 @@
 import libs = cuda-cudart%libs{cudart}
 
-exe{driver}: c{*} $libs testscript{**}
+import all = \
+  cuda-cudart%libs{cudart} \
+  cuda-cudart%liba{cudadevrt}
+
+exe{driver}: c{*} $libs $all testscript{**}

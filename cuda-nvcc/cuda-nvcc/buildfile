@@ -6,13 +6,13 @@ name = $regex.replace($project, 'cuda-', '')
 source redist.build
 define [see_through] import: group
 
-./: lib{$name}: import{legal} import{$name} $intf_libs
+./: lib{$name}: import{legal} import{$name-headers} $intf_libs
 
 redist{cuda_$name}: $src_root/manifest
 archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_$name}
 extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
-import{$name}: extract{archive}: update = match
 import{legal}: extract{archive}: update = match
+import{$name-headers}: extract{archive}: update = match
 
 import{legal}:
 {{
@@ -37,60 +37,65 @@ import{legal}:
     touch $path($t)
   end
 }}
-import{$name}:
+
+import{$name-headers}:
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files
 
-  find "$out_base/bin/" -type f -name "*" \
-    | set -n b [paths]
   find "$out_base/include/" -type f -name "*" \
-    | set -n h [paths]
+    | set -n f [paths]
 
   depdb dyndep \
     --dyn-target \
     --target-cwd "$o" \
-    --target-what 'imported files' \
+    --target-what 'headers' \
     --target-default-type 'h' \
-    --target-extension-type '=h' \
-    --target-extension-type 'h=h' \
-    --target-extension-type 'hpp=h' \
-    --target-extension-type 'so=libs' \
-    --target-extension-type 'dylib=libs' \
-    --target-extension-type 'dll=libs' \
-    --target-extension-type 'lib=liba' \
     --format lines \
-    --file $d \
-    -- \
-      echo $regex.merge($b $l $h, '(.+)', '\1\n') >$d
+    -- echo $regex.merge($f, '(.+)', '\1\n')
 
   diag import $>
 
-  for t : $filter_out($>, group)
-    touch $path($t)
+  for f : $filter($>, h)
+    touch $path($f)
   end
 }}
 
-## symlink exe{<name>} files to the actual executable
-#  such that we can export a deterministic exe{} target
-./: \
-exe{bin2c.exe} \
-exe{cudafe++.exe} \
-exe{fatbinary.exe} \
-exe{nvcc.exe} \
-exe{nvlink.exe} \
-exe{ptxas.exe} \
-exe{__nvcc_device_query.exe} \
-: extract{archive} testscript
+## import exe{<name>} targets
+# 
+./: bin/exe{*}
+< \
+  bin/exe{bin2c.exe} \
+  bin/exe{cudafe++.exe} \
+  bin/exe{fatbinary.exe} \
+  bin/exe{nvcc.exe} \
+  bin/exe{nvlink.exe} \
+  bin/exe{ptxas.exe} \
+> \
+: extract{archive}
 {{
-  find "$out_base/bin" -type f -name "*$leaf($path($>))*" \
+  o = $directory($>[0])
+  d = $o/$name($>[0]).files
+  e = $filter($<, exe)
+
+  find "$out_base/bin" -type f -name "*\.exe" \
     | set e [path]
 
-  diag ln $> $<
+  depdb dyndep \
+    --dyn-target \
+    --target-cwd "$o" \
+    --target-what 'imported executables' \
+    --target-default-type 'exe' \
+    --target-extension-type '=exe' \
+    --target-extension-type 'exe=exe' \
+    --format lines \
+    -- \
+      echo $regex.merge($e, '(.+)', '\1\n')
 
-  # create symlink to actual file instead of renaming it
-  test -f "$path($>)" || ln --symbolic "$e" "$path($>)"
-  touch "$path($>)"
+  diag import ($>)
+  for t : $filter_out($>, group)
+    touch $path($t)
+  end
 }}
 
 if ($cc.target.system == 'mingw32')

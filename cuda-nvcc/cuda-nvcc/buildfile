@@ -70,7 +70,7 @@ liba{$(name).lib}:
   bin/exe{nvlink.exe} \
   bin/exe{ptxas.exe} \
 > \
-: extract{archive}
+: extract{archive} fsdir{bin}
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files

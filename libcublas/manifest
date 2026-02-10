@@ -1,6 +1,6 @@
 : 1
 name: libcublas
-version: 12.8.0+4
+version: 12.8.0+5
 upstream-version: 12.8.3
 type: lib,binless
 language: c

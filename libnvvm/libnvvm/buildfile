@@ -125,7 +125,7 @@ if ($cc.target.system == 'mingw32')
 ## import exe{<name>} targets
 # 
 ./: bin/exe{*}
-<bin/exe{cicc.exe}>: extract{archive}
+<bin/exe{cicc.exe}>: extract{archive} fsdir{bin}
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files

@@ -124,14 +124,14 @@ if ($cc.target.system == 'mingw32')
 
 ## import exe{<name>} targets
 # 
-./: bin/exe{*}
-<bin/exe{cicc.exe}>: extract{archive} fsdir{bin}
+./: nvvm/bin/exe{*}
+<nvvm/bin/exe{cicc.exe}>: extract{archive} nvvm/fsdir{bin}
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files
   e = $filter($<, exe)
 
-  find "$out_base/bin" -type f -name "*\.exe" \
+  find "$o" -type f -name "*\.exe" \
     | set e [path]
 
   depdb dyndep \

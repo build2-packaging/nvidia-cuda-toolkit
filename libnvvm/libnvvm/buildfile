@@ -122,6 +122,11 @@ import{$name-headers}: fsdir{include}
 if ($cc.target.system == 'mingw32')
   c.loptions += -Wl,--export-all-symbols
 
+## @NOTE: This is imported & symlinked by cuda-nvcc.
+#         See note in ../../cuda-nvcc/cuda-nvcc/buildfile.
+#
+dir{nvvm}: extract{archive} fsdir{nvvm}
+
 ## import exe{<name>} targets
 # 
 ./: nvvm/bin/exe{*}

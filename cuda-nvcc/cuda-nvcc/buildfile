@@ -1,5 +1,6 @@
 import intf_libs = \
   cuda-crt%lib{crt}
+import nvvm = libnvvm%dir{nvvm}
 
 name = $regex.replace($project, 'cuda-', '')
 
@@ -62,8 +63,25 @@ import{$name-headers}: fsdir{include}
   end
 }}
 
+## @NOTE: CUDA Toolkit v12 -> v13 removed 'nvvm/' from the cuda-nvcc
+#         archive, but nvcc.exe (and friends) still require dir 'nvvm'
+#         to exist relative to 'dir(nvcc.exe)/../nvvm/'. It's all
+#         impressively hacky & hard-coded, but hopefully it'll be fixed
+#         (eg. allow overriding envar CICC_PATH).
+#         For now, we import & symlink.
+#
+fsdir{nvvm}: $nvvm
+% update
+{{
+  ln --symbolic $path($<) $directory($>)/nvvm
+}}
+% clean
+{{
+  rm $path($>)
+}}
+
 ## import exe{<name>} targets
-# 
+#
 ./: bin/exe{*}
 < \
   bin/exe{bin2c.exe} \
@@ -73,7 +91,7 @@ import{$name-headers}: fsdir{include}
   bin/exe{nvlink.exe} \
   bin/exe{ptxas.exe} \
 > \
-: extract{archive} fsdir{bin}
+: extract{archive} fsdir{bin} fsdir{nvvm}
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files

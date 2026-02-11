@@ -75,7 +75,7 @@ import{$name}:
   end
 }}
 
-import{$name-headers}:
+import{$name-headers}: fsdir{include}
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files

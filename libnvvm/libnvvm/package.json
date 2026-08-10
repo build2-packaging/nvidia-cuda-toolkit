@@ -13,7 +13,7 @@
     "x86_64-linux": {
       "nvvm": {
         "linked": [],
-        "shared": ["nvvm/lib/libnvvm.so"],
+        "shared": ["nvvm/lib64/libnvvm.so"],
         "archives": [],
         "depends": []
       }

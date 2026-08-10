@@ -68,7 +68,7 @@ archive{~'/(.+)/'}:
   diag curl $url -> $>
 
   bsdtar -tf $tar >- 2>&1 || \
-    curl -\# --netrc --fail --output $part "$url"
+    curl -\# --fail --output $part "$url"
   test -f $part && \
     rm -f $tar && mv $part $tar &!$tar || true
   test -f $path($>) || \
@@ -120,15 +120,43 @@ extract{~'/(.+)/'}:
   touch $d
 }}
 
-# Linux: install versioned .so and recreate the unversioned symlink.
+# Linux: install versioned SONAME companions alongside the base .so.
+# build2's default install only copies the base file. This also copies any
+# real versioned binaries (e.g. libcudart.so.13.0.96) and recreates versioned
+# symlinks (e.g. libcudart.so.13) pointing at the installed binary.
+#
 if ($cc.target.class != 'windows')
 {
-  libs{~'/lib(.+)/'}:% install
+  libs{~'/lib(.+)/'}:
+  % install
   {{
-    d = $install.resolve($install.lib)
-    f = $path($>)
-    b = $leaf($f)
-    install -m 644 "$f" "$d/"
-    ln --symbolic --force "$b" "$d/$regex.replace($b, '\.so\..*$', '.so')"
+    dst = $install.resolve($install.lib, [dir_path])
+
+    diag install $>
+
+    mkdir --no-cleanup -p "$dst"
+
+    for src : [paths] $path($>)
+    {
+      find "$directory($src)" -maxdepth 1 -name "$leaf($src).*" -type f \
+        | set real_files [paths]
+      find "$directory($src)" -maxdepth 1 -name "$leaf($src).*" -type l \
+        | set sym_files [paths]
+
+      if (!$empty($real_files))
+      {
+        real = $front($real_files)
+        cp --no-cleanup "$real" "$dst/"
+        rm -f "$dst/$leaf($src)"
+        ln --no-cleanup -s "$leaf($real)" "$dst/$leaf($src)"
+        for s : $sym_files
+        {
+          rm -f "$dst/$leaf($s)"
+          ln --no-cleanup -s "$leaf($real)" "$dst/$leaf($s)"
+        }
+      }
+      else
+        cp --no-cleanup "$src" "$dst/"
+    }
   }}
 }

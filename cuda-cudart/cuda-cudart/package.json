@@ -20,7 +20,7 @@
       "cudart": {
         "linked": [],
         "shared": ["lib/libcudart.so"],
-        "archives": [],
+        "archives": ["lib/stubs/libcuda.so"],
         "depends": []
       },
       "cudadevrt": {

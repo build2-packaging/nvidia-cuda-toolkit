@@ -16,7 +16,11 @@
     "x86_64-linux": {
       "nvrtc": {
         "linked": [],
-        "shared": ["lib/libnvrtc.so"],
+        "shared": [
+          "lib/libnvrtc.so",
+          "lib/libnvrtc-builtins.so",
+          "lib/libnvrtc.alt.so"
+        ],
         "archives": [],
         "depends": []
       }

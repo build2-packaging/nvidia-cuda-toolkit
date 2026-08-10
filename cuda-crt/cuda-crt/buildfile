@@ -1,19 +1,35 @@
-intf_libs =
-
-name = $regex.replace($project, 'cuda-', '')
-
-source redist.build
 define [see_through] import: group
 
-./: lib{$name}: import{legal} import{$name-headers} $intf_libs
+name = $string.replace($project, 'cuda-', '')
 
-redist{cuda_$name}: $src_root/manifest
-archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_$name}
-extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
-import{legal}: extract{archive}: update = match
-import{$name-headers}: extract{archive}: update = match
+source redist.build
 
-import{legal}:
+json{$name-manifest}: $src_root/manifest manifest.json
+
+manifest_json = [json_object] $json.load($src_base/manifest.json)
+package_ver   = "$(version.major).$(version.minor).$(version.patch)"
+
+pub_hdrs = [strings]
+for d: [json_array] ($manifest_json["includeDirs"])
+{
+  dir = [string] $d
+  pub_hdrs += "-I$out_base/$dir"
+}
+
+for plat: [json_object] ($manifest_json["platforms"])
+{
+  plat_key = $member_name($plat)
+  plat_val = $member_value($plat)
+  enabled  = [bool] ($cc.target.cpu-$cc.target.class == $plat_key)
+  platform = [string] ($plat_val["platform"])
+  archive{$name-$platform-$package_ver}: json{$name-manifest} manifest.json: include = $enabled
+  extract{$name}: archive{$name-$platform-$package_ver}: include = $enabled
+}
+
+import{$name-headers}: extract{$name}: update = match
+import{$name-legals}:  extract{$name}: update = match
+
+import{$name-legals}:
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files
@@ -33,11 +49,12 @@ import{legal}:
   diag import $>
 
   for t : $filter_out($>, group)
+  {
     touch $path($t)
-  end
+  }
 }}
 
-import{$name-headers}: fsdir{include}
+import{$name-headers}:
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files
@@ -51,40 +68,54 @@ import{$name-headers}: fsdir{include}
     --target-what 'headers' \
     --target-default-type 'h' \
     --target-extension-type '=h' \
+    --target-extension-type 'hpp=hxx' \
+    --target-extension-type 'cuh=hxx' \
+    --target-extension-type 'inl=hxx' \
     --format lines \
     -- echo $regex.merge($f, '(.+)', '\1\n')
 
   diag import $>
 
-  for f : $filter($>, h)
+  for f : $filter($>, h hxx)
+  {
     touch $path($f)
-  end
+  }
 }}
 
-if ($cc.target.system == 'mingw32')
-  c.loptions += -Wl,--export-all-symbols
-
-# Export options.
-
-lib{$name}:
+./: json{package}
+json = [json_object] $json.load($src_base/package.json)
+for plat: [json_object] ($json["platforms"])
 {
-  cc.type = cc
-  cc.export.poptions = "-I$out_base/include"
-  cc.export.libs = $intf_libs
+  plat_key = $member_name($plat)
+  enabled  = [bool] ($cc.target.cpu-$cc.target.class == $plat_key)
+  for m: [json_object] ($member_value($plat))
+  {
+    n = $member_name($m)
+
+    ./: lib{$n}:
+    {
+      include = $enabled
+      clean   = false
+    }
+    [rule_hint=cxx] \
+    lib{$n}: import{$name-legals} import{$name-headers}: \
+             extract{$name}:
+    {
+      include = $enabled
+      update  = match
+    }
+
+    lib{$n}:
+    {
+      cc.type            = cc
+      cc.export.poptions = $pub_hdrs
+    }
+  }
 }
 
-# TODO: Handle shared lib installation.
-#       Specifically don't install the "alias" lib
-#       that just symlinks the real one. Only
-#       install the latter & fix pkg-config targets.
+lib/liba{**}: install = false
 
-exe{*}:
-{
-  install         = bin/
-  install.subdirs = true
-}
-
-crt/include/h{*}:
+include/h{**}:
 {
   install         = include/$project/
   install.subdirs = true

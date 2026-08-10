@@ -1,76 +1,72 @@
-define redist: file
-redist{*}: extension = json
-
 define archive: file
 archive{*}: extension = tar
 
 define extract: group
 
-# for build2 to not error out when it
-# sees the libi target (import library)
+# build2 already knows about libi on Windows.
 if ($cc.target.class != 'windows')
 {
   define libi: file
 }
 
-redist{~'/(.+)/'}:
+# Fetch NVIDIA redistrib JSON.
+# $<[0]: build2 package manifest, $<[1]: manifest.json (local config)
+json{~'/(.+-manifest.*)/'}:
 {{
-  n = $name($>)
+  local_cfg  = [json] $json.load($path($<[1]))
+  redistUrl  = [string] ($local_cfg["redistUrl"])
+  platforms  = [json_object] ($local_cfg["platforms"])
+  plat_cfg   = [json] ($platforms["$cc.target.cpu-$cc.target.class"])
+  component  = [string] ($plat_cfg["component"])
+  platform   = [string] ($plat_cfg["platform"])
+  expected_v = [string] ($plat_cfg["version"])
 
-  # 'b dist' may cap width, so join escaped lines.
-  cat $path($<) \
-    | set m [strings]
-  m = $regex.apply($m, '\\\n', '')
-  echo $m \
-    | sed -n -e 's/^url:\s*(.*)$/\1/p' \
-    | set url [string]
+  depdb hash $local_cfg
+  diag curl $redistUrl -> $>
 
-  echo $m \
-    | sed -n -e 's/^upstream-version:\s*([0-9.]+).*$/\1/p' \
-    | set version [string]
+  curl -\# --fail "$redistUrl" | set redist [json]
 
-  diag curl $url -> $>
-
-  curl -\# --fail "$url" | set json [json]
-
-  json         = [json] ($json["$n"])
-  if $null($json)
-    echo "[error] key '$n' not found in json" >&2
+  pkg_entry   = [json] ($redist["$component"])
+  pkg_version = [string] ($pkg_entry["version"])
+  if (!$contains($pkg_version, $expected_v))
+  {
+    echo "[error] version mismatch for $component/$platform: v$expected_v (local) != v$pkg_version (remote)" >&2
     exit 1
-  end
-  pkg          = [json] ($json["$cc.target.class-$cc.target.cpu"])
-  pkg_version  = [string] ($json["version"])
-  archive      = [path] "$directory($url)/([string] $pkg["relative_path"])"
+  }
 
-  # upstream differ in patch-version for the different packages,
-  # so we limit the hard requirement to just maj.min.<any>
-  if (!$contains($pkg_version, $version))
-    echo "[error] $n version mismatch: v$version \(local) != v$pkg_version \(remote)" >&2
-    exit 1
-  end
-
-  if ($null(($json["base_url"])))
-    json += ("base_url"@"$directory($url)")
-  end
-  echo "$json.serialize($json)" >$path($>)
+  echo $json.serialize($redist) >$path($>)
 }}
 
+# Download platform-specific archive from NVIDIA CDN.
+# $<[0]: json{$name-manifest} (redistrib JSON), $<[1]: manifest.json
 archive{~'/(.+)/'}:
 {{
   tar  = $out_root/$leaf($path($>))
   part = $(tar).part
 
-  # extract details from redist.json
-  json     = ($<[0])
-  meta     = [json] $json.load($path($json))
-  pkg      = [json] ($meta["$cc.target.class-$cc.target.cpu"])
-  base_url = [string] ($meta["base_url"])
-  url      = [path] "$base_url/([string] $pkg["relative_path"])"
+  redist_j  = ($<[0])
+  local_j   = ($<[1])
+  redist    = [json] $json.load($path($redist_j))
+  local_cfg = [json] $json.load($path($local_j))
 
-  depdb hash $json
+  platforms  = [json_object] ($local_cfg["platforms"])
+  plat_cfg   = [json] ($platforms["$cc.target.cpu-$cc.target.class"])
+  component  = [string] ($plat_cfg["component"])
+  platform   = [string] ($plat_cfg["platform"])
+
+  pkg_entry  = [json] ($redist["$component"])
+  plat_entry = [json] ($pkg_entry["$platform"])
+  rel_path   = [string] ($plat_entry["relative_path"])
+
+  redistUrl  = [string] ($local_cfg["redistUrl"])
+  echo "$redistUrl" \
+    | sed -n -e 's%/[^/]*$%%p' \
+    | set base_url [string]
+  url = "$(base_url)/$(rel_path)"
+
+  depdb hash $redist
   diag curl $url -> $>
 
-  # download if missing or broken
   bsdtar -tf $tar >- 2>&1 || \
     curl -\# --netrc --fail --output $part "$url"
   test -f $part && \
@@ -80,13 +76,13 @@ archive{~'/(.+)/'}:
   touch $path($>)
 }}
 
-## Use a fixed name for group to circumvent #463
-#  https://github.com/build2/build2/issues/463
-extract{archive}:
+# Extract archive into $out_base (strip the archive root directory).
+extract{~'/(.+)/'}:
 {{
+  n = $name($>[0])
   o = $posix_representation($directory($>[0]))
   a = $posix_representation($path($<[0]))
-  d = "$(a).files"
+  d = "$o$(n).files"
 
   pattern = [cmdline] \
     --exclude "*/bin/*32_*" \
@@ -96,7 +92,6 @@ extract{archive}:
     --exclude "*samples*" \
     "*/*/*"  "*LICENSE"
 
-  # extract paths for all relevant files
   depdb dyndep \
     --dyn-target \
     --target-cwd "$o" \
@@ -117,13 +112,23 @@ extract{archive}:
     --file "$d" \
     -- \
       bsdtar -tf "$a" $pattern \
-      | sed -n -e 's%^.*?/%%p' \
-      | sed -n -e 's%^(.*)/?$%\1%p' \
-      | sed -e "s%.+/\$%$d%g" >$d
+      | sed -n -e 's%^[^/]*/%%p' \
+      | grep -v '/$' >$d
 
-  # extract all files
   diag bsdtar $< $filter_out($>, group)
-
   bsdtar -C "$o" -xmf "$a" --strip-components=1 $pattern
   touch $d
 }}
+
+# Linux: install versioned .so and recreate the unversioned symlink.
+if ($cc.target.class != 'windows')
+{
+  libs{~'/lib(.+)/'}:% install
+  {{
+    d = $install.resolve($install.lib)
+    f = $path($>)
+    b = $leaf($f)
+    install -m 644 "$f" "$d/"
+    ln --symbolic --force "$b" "$d/$regex.replace($b, '\.so\..*$', '.so')"
+  }}
+}

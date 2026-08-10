@@ -2,22 +2,38 @@ import intf_libs = \
   cuda-cccl%lib{cccl} \
   cuda-nvcc%lib{nvcc}
 
-name = $regex.replace($project, 'cuda-', '')
-
-source redist.build
 define [see_through] import: group
 
-./: libs{$name}: import{legal} import{$name} import{$name-headers} $intf_libs
-./: liba{cudadevrt}
+name = $string.replace($project, 'cuda-', '')
 
-redist{cuda_$name}: $src_root/manifest
-archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_$name}
-extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
-import{legal}: extract{archive}: update = match
-import{$name}: extract{archive}: update = match
-import{$name-headers}: extract{archive}: update = match
+source redist.build
 
-import{legal}:
+json{$name-manifest}: $src_root/manifest manifest.json
+
+manifest_json = [json_object] $json.load($src_base/manifest.json)
+package_ver   = "$(version.major).$(version.minor).$(version.patch)"
+
+pub_hdrs = [strings]
+for d: [json_array] ($manifest_json["includeDirs"])
+{
+  dir = [string] $d
+  pub_hdrs += "-I$out_base/$dir"
+}
+
+for plat: [json_object] ($manifest_json["platforms"])
+{
+  plat_key = $member_name($plat)
+  plat_val = $member_value($plat)
+  enabled  = [bool] ($cc.target.cpu-$cc.target.class == $plat_key)
+  platform = [string] ($plat_val["platform"])
+  archive{$name-$platform-$package_ver}: json{$name-manifest} manifest.json: include = $enabled
+  extract{$name}: archive{$name-$platform-$package_ver}: include = $enabled
+}
+
+import{$name-headers}: extract{$name}: update = match
+import{$name-legals}:  extract{$name}: update = match
+
+import{$name-legals}:
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files
@@ -37,45 +53,12 @@ import{legal}:
   diag import $>
 
   for t : $filter_out($>, group)
+  {
     touch $path($t)
-  end
+  }
 }}
 
-import{$name}:
-{{
-  o = $directory($>[0])
-  d = $o/$name($>[0]).files
-
-  find "$out_base/bin/" -type f -name "*" \
-    | set -n l [paths]
-  find "$out_base/lib/" -type f -name "*" \
-    | set -n i [paths]
-  # @@ NOTE: All import libraries except cudart.lib (main import library)
-  #          injects LIBCMT for some unknown reason (v13.0.1), and that pollutes
-  #          consumers (triggers warning LNK4098).
-  i = $regex.filter_out_search($i, '.*(static|cudadevrt).*')
-
-  depdb dyndep \
-    --dyn-target \
-    --target-cwd "$o" \
-    --target-what 'imported files' \
-    --target-extension-type 'so=libs' \
-    --target-extension-type 'dylib=libs' \
-    --target-extension-type 'dll=libs' \
-    --target-extension-type 'lib=libi' \
-    --format lines \
-    --file $d \
-    -- \
-      echo $regex.merge($l $i, '(.+)', '\1\n') >$d
-
-  diag import $>
-
-  for t : $filter_out($>, group)
-    touch $path($t)
-  end
-}}
-
-import{$name-headers}: fsdir{include}
+import{$name-headers}:
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files
@@ -95,61 +78,108 @@ import{$name-headers}: fsdir{include}
   diag import $>
 
   for f : $filter($>, h)
+  {
     touch $path($f)
-  end
+  }
 }}
 
-## create phony libs{<name>} such that we can export a
-#  deterministic libs{} target, and generate a single
-#  libi{<name>} from all extracted import libraries.
-<libs{$(name).dll} libi{$(name).dll.lib}>:
-{{
-  n     = $name($>[0])
-  ilibs = ($filter($<, libi))
-
-  $effect($bin.ld.path) -DUMP -NOLOGO -HEADERS $path($ilibs[0]) \
-   | sed -n -e 's/.*machine \((.*)\)/\1/p' \
-   | set -w m
-  m = ($m[0])
-
-  diag $name($bin.ar.path) $ilibs $>
-
-  # create a dummy libs{<name>} as this is only acting as
-  # an 'alias' target, essentially creating a phony lib.
-  touch "$path($>[0])"
-
-  # combine all import libraries to one
-  $effect($bin.ar.path) -NOLOGO "-OUT:$path($>[1])" \
-                        "-NAME:$n" "-MACHINE:$m" $path($ilibs) >! 2>&1
-}}
-
-## import liba{<name>} targets
-#
-liba{cudadevrt.lib}: extract{archive}
-{{
-  o = $directory($>[0])
-  d = $o/$name($>[0]).files
-  a = $filter($<, liba)
-
-  find "$out_base/lib" -type f -name "$path.leaf($path($>))" \
-    | set a [path]
-
-  diag import ($>)
-
-  rm -f $path($>) && ln --symbolic $a $path($>)
-}}
-
-if ($cc.target.system == 'mingw32')
-  c.loptions += -Wl,--export-all-symbols
-
-# Export options.
-
-lib{$name}:
+./: json{package}
+json = [json_object] $json.load($src_base/package.json)
+for plat: [json_object] ($json["platforms"])
 {
-  cc.type = cc
-  cc.export.poptions = "-I$out_base/include"
-  cc.export.libs = $intf_libs
+  plat_key = $member_name($plat)
+  enabled  = [bool] ($cc.target.cpu-$cc.target.class == $plat_key)
+  for m: [json_object] ($member_value($plat))
+  {
+    n = $member_name($m)
+    v = [json_object] ($member_value($m))
+
+    ./: libs{$n}:
+    {
+      include = $enabled
+      clean   = false
+    }
+    [rule_hint=c.link] \
+    libs{$n}: import{$name-legals} import{$name-headers}: \
+              extract{$name}:
+    {
+      include = $enabled
+      update  = match
+    }
+
+    for b: [json_array] ($v["linked"])
+    {
+      dll  = [path] $out_base/($b["dll"])
+      libi = [paths]
+      for x: [json_array] ($b["libs"])
+        libi += [paths] $out_base/$x
+
+      <libs{$dll} libi{$libi}>: extract{$name}: include = $enabled
+      libs{$n}: libs{$dll}: include = $enabled
+      if $enabled
+      {
+        libs{$n}:
+        {
+          cc.export.libs =+ libs{$dll}
+        }
+      }
+    }
+
+    for s: [json_array] ($v["shared"])
+    {
+      so = [path] $out_base/$s
+      <libs{$so}>: extract{$name}: include = $enabled
+      libs{$n}: libs{$so}: include = $enabled
+      if $enabled
+      {
+        if ($cc.target.class != 'windows')
+        {
+          libs{$n}:
+          {
+            cc.export.libs =+ libs{$so}
+          }
+        }
+      }
+    }
+
+    for a: [json_array] ($v["archives"])
+    {
+      ar = [path] $out_base/$a
+      <liba{$ar}>: extract{$name}: include = $enabled
+      libs{$n}: liba{$ar}: include = $enabled
+      if $enabled
+      {
+        libs{$n}: cc.export.libs += liba{$ar}
+      }
+    }
+
+    for d2: [json_array] ($v["depends"])
+    {
+      dep = [name] $d2
+      libs{$n}: libs{$dep}: include = $enabled
+      if $enabled
+      {
+        libs{$n}: cc.export.libs += libs{$dep}
+      }
+    }
+
+    if ($n == 'cudart')
+    {
+      libs{$n}: $intf_libs: include = $enabled
+      if $enabled
+      {
+        libs{$n}: cc.export.libs += $intf_libs
+      }
+    }
+    libs{$n}:
+    {
+      cc.type            = cc
+      cc.export.poptions = $pub_hdrs
+    }
+  }
 }
+
+lib/liba{**}: install = false
 
 exe{*}:
 {
@@ -157,7 +187,7 @@ exe{*}:
   install.subdirs = true
 }
 
-include/h{*}:
+include/h{**}:
 {
   install         = include/$project/
   install.subdirs = true

@@ -1,0 +1,34 @@
+{
+  "platforms": {
+    "x86_64-windows": {
+      "cudart": {
+        "linked": [
+          {"dll": "bin/x64/cudart64_13.dll", "libs": ["lib/x64/cudart.lib"]}
+        ],
+        "shared": [],
+        "archives": ["lib/x64/cuda.lib"],
+        "depends": []
+      },
+      "cudadevrt": {
+        "linked": [],
+        "shared": [],
+        "archives": ["lib/x64/cudadevrt.lib"],
+        "depends": []
+      }
+    },
+    "x86_64-linux": {
+      "cudart": {
+        "linked": [],
+        "shared": ["lib/libcudart.so"],
+        "archives": [],
+        "depends": []
+      },
+      "cudadevrt": {
+        "linked": [],
+        "shared": [],
+        "archives": ["lib/libcudadevrt.a"],
+        "depends": []
+      }
+    }
+  }
+}

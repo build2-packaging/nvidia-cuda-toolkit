@@ -1,0 +1,25 @@
+{
+  "platforms": {
+    "x86_64-windows": {
+      "nvrtc": {
+        "linked": [
+          {"dll": "bin/x64/nvrtc64_130_0.dll", "libs": ["lib/x64/nvrtc.lib"]}
+        ],
+        "shared": [
+          "bin/x64/nvrtc-builtins64_130.dll",
+          "bin/x64/nvrtc64_130_0.alt.dll"
+        ],
+        "archives": [],
+        "depends": []
+      }
+    },
+    "x86_64-linux": {
+      "nvrtc": {
+        "linked": [],
+        "shared": ["lib/libnvrtc.so"],
+        "archives": [],
+        "depends": []
+      }
+    }
+  }
+}

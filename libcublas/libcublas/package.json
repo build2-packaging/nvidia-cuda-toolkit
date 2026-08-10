@@ -1,0 +1,50 @@
+{
+  "platforms": {
+    "x86_64-windows": {
+      "cublas": {
+        "linked": [
+          {"dll": "bin/x64/cublas64_13.dll", "libs": ["lib/x64/cublas.lib"]}
+        ],
+        "shared": [],
+        "archives": [],
+        "depends": ["cublasLt"]
+      },
+      "cublasLt": {
+        "linked": [
+          {"dll": "bin/x64/cublasLt64_13.dll", "libs": ["lib/x64/cublasLt.lib"]}
+        ],
+        "shared": [],
+        "archives": [],
+        "depends": []
+      },
+      "nvblas": {
+        "linked": [
+          {"dll": "bin/x64/nvblas64_13.dll", "libs": ["lib/x64/nvblas.lib"]}
+        ],
+        "shared": [],
+        "archives": [],
+        "depends": []
+      }
+    },
+    "x86_64-linux": {
+      "cublas": {
+        "linked": [],
+        "shared": ["lib/libcublas.so"],
+        "archives": [],
+        "depends": []
+      },
+      "cublasLt": {
+        "linked": [],
+        "shared": ["lib/libcublasLt.so"],
+        "archives": [],
+        "depends": []
+      },
+      "nvblas": {
+        "linked": [],
+        "shared": ["lib/libnvblas.so"],
+        "archives": [],
+        "depends": []
+      }
+    }
+  }
+}

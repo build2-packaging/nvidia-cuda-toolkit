@@ -1,0 +1,18 @@
+{
+  "redistUrl": "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.2.json",
+  "includeDirs": ["include"],
+  "ccType": "cc",
+  "binless": true,
+  "platforms": {
+    "x86_64-windows": {
+      "component": "cuda_nvcc",
+      "platform": "windows-x86_64",
+      "version": "13.0.88"
+    },
+    "x86_64-linux": {
+      "component": "cuda_nvcc",
+      "platform": "linux-x86_64",
+      "version": "13.0.88"
+    }
+  }
+}

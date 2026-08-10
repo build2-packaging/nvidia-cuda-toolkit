@@ -1,21 +1,37 @@
-import intf_libs = \
-  cuda-crt%lib{crt}
-import nvvm = libnvvm%dir{nvvm}
+import intf_libs = cuda-crt%lib{crt}
 
-name = $regex.replace($project, 'cuda-', '')
-
-source redist.build
 define [see_through] import: group
 
-./: lib{$name}: import{legal} import{$name-headers} $intf_libs
+name = $string.replace($project, 'cuda-', '')
 
-redist{cuda_$name}: $src_root/manifest
-archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}: redist{cuda_$name}
-extract{archive}: archive{$cc.target.class-$cc.target.cpu-$version-archive.tar}
-import{legal}: extract{archive}: update = match
-import{$name-headers}: extract{archive}: update = match
+source redist.build
 
-import{legal}:
+json{$name-manifest}: $src_root/manifest manifest.json
+
+manifest_json = [json_object] $json.load($src_base/manifest.json)
+package_ver   = "$(version.major).$(version.minor).$(version.patch)"
+
+pub_hdrs = [strings]
+for d: [json_array] ($manifest_json["includeDirs"])
+{
+  dir = [string] $d
+  pub_hdrs += "-I$out_base/$dir"
+}
+
+for plat: [json_object] ($manifest_json["platforms"])
+{
+  plat_key = $member_name($plat)
+  plat_val = $member_value($plat)
+  enabled  = [bool] ($cc.target.cpu-$cc.target.class == $plat_key)
+  platform = [string] ($plat_val["platform"])
+  archive{$name-$platform-$package_ver}: json{$name-manifest} manifest.json: include = $enabled
+  extract{$name}: archive{$name-$platform-$package_ver}: include = $enabled
+}
+
+import{$name-headers}: extract{$name}: update = match
+import{$name-legals}:  extract{$name}: update = match
+
+import{$name-legals}:
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files
@@ -35,11 +51,12 @@ import{legal}:
   diag import $>
 
   for t : $filter_out($>, group)
+  {
     touch $path($t)
-  end
+  }
 }}
 
-import{$name-headers}: fsdir{include}
+import{$name-headers}:
 {{
   o = $directory($>[0])
   d = $o/$name($>[0]).files
@@ -59,75 +76,62 @@ import{$name-headers}: fsdir{include}
   diag import $>
 
   for f : $filter($>, h)
+  {
     touch $path($f)
-  end
+  }
 }}
 
-## @NOTE: CUDA Toolkit v12 -> v13 removed 'nvvm/' from the cuda-nvcc
-#         archive, but nvcc.exe (and friends) still require dir 'nvvm'
-#         to exist relative to 'dir(nvcc.exe)/../nvvm/'. It's all
-#         impressively hacky & hard-coded, but hopefully it'll be fixed
-#         (eg. allow overriding envar CICC_PATH).
-#         For now, we import & symlink.
-#
-fsdir{nvvm}: $nvvm
-% update
-{{
-  ln --symbolic $path($<) $directory($>)/nvvm
-}}
-% clean
-{{
-  rm $path($>)
-}}
-
-## import exe{<name>} targets
-#
-./: bin/exe{*}
-< \
-  bin/exe{bin2c.exe} \
-  bin/exe{cudafe++.exe} \
-  bin/exe{fatbinary.exe} \
-  bin/exe{nvcc.exe} \
-  bin/exe{nvlink.exe} \
-  bin/exe{ptxas.exe} \
-> \
-: extract{archive} fsdir{bin} fsdir{nvvm}
-{{
-  o = $directory($>[0])
-  d = $o/$name($>[0]).files
-  e = $filter($<, exe)
-
-  find "$out_base/bin" -type f -name "*\.exe" \
-    | set e [path]
-
-  depdb dyndep \
-    --dyn-target \
-    --target-cwd "$o" \
-    --target-what 'imported executables' \
-    --target-default-type 'exe' \
-    --target-extension-type '=exe' \
-    --target-extension-type 'exe=exe' \
-    --format lines \
-    -- \
-      echo $regex.merge($e, '(.+)', '\1\n')
-
-  diag import ($>)
-  for t : $filter_out($>, group)
-    touch $path($t)
-  end
-}}
-
-if ($cc.target.system == 'mingw32')
-  c.loptions += -Wl,--export-all-symbols
-
-# Export options.
-
-lib{$name}:
+./: json{package}
+json = [json_object] $json.load($src_base/package.json)
+for plat: [json_object] ($json["platforms"])
 {
-  cc.type = cc
-  cc.export.poptions = "-I$out_base/include"
-  cc.export.libs = $intf_libs
+  plat_key = $member_name($plat)
+  enabled  = [bool] ($cc.target.cpu-$cc.target.class == $plat_key)
+  for m: [json_object] ($member_value($plat))
+  {
+    n = $member_name($m)
+
+    ./: lib{$n}:
+    {
+      include = $enabled
+      clean   = false
+    }
+    [rule_hint=cxx] \
+    lib{$n}: import{$name-legals} import{$name-headers}: \
+             extract{$name}:
+    {
+      include = $enabled
+      update  = match
+    }
+
+    lib{$n}: $intf_libs: include = $enabled
+
+    lib{$n}:
+    {
+      cc.type            = cc
+      cc.export.poptions = $pub_hdrs
+      cc.export.libs     = $intf_libs
+    }
+  }
 }
+
+for plat: [json_object] ($json["exes"])
+{
+  plat_key = $member_name($plat)
+  enabled  = [bool] ($cc.target.cpu-$cc.target.class == $plat_key)
+  for m: [json_object] ($member_value($plat))
+  {
+    p = [string] ($member_value($m))
+    ./: exe{$p}: include = $enabled
+    exe{$p}: import{$name-headers}: extract{$name}: include = $enabled
+  }
+}
+
+exe{~'/(.+)/'}:
+{{
+  diag import $> $<
+  touch $path($>)
+}}
 
 lib/liba{**}: install = false
 
@@ -137,7 +141,7 @@ exe{*}:
   install.subdirs = true
 }
 
-include/h{*}:
+include/h{**}:
 {
   install         = include/$project/
   install.subdirs = true

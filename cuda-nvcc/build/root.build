@@ -1,15 +1,9 @@
-# Uncomment to suppress warnings coming from external libraries.
-#
-#c.internal.scope = current
-
 using c
+using cxx
 
 h{*}: extension = h
 c{*}: extension = c
 
 legal{*}: backlink = false
 
-# Only Windows is currently supported.
-#
-if ($cc.target.class != 'windows')
-  fail 'Only Windows is currently supported'
+test.target = $c.target

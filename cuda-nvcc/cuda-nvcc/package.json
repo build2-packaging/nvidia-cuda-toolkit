@@ -1,0 +1,40 @@
+{
+  "platforms": {
+    "x86_64-windows": {
+      "nvcc": {
+        "linked": [],
+        "shared": [],
+        "archives": [],
+        "depends": []
+      }
+    },
+    "x86_64-linux": {
+      "nvcc": {
+        "linked": [],
+        "shared": [],
+        "archives": [],
+        "depends": []
+      }
+    }
+  },
+  "exes": {
+    "x86_64-windows": {
+      "__nvcc_device_query": "bin/__nvcc_device_query.exe",
+      "bin2c":      "bin/bin2c.exe",
+      "cudafe++":   "bin/cudafe++.exe",
+      "fatbinary":  "bin/fatbinary.exe",
+      "nvcc":       "bin/nvcc.exe",
+      "nvlink":     "bin/nvlink.exe",
+      "ptxas":      "bin/ptxas.exe"
+    },
+    "x86_64-linux": {
+      "__nvcc_device_query": "bin/__nvcc_device_query",
+      "bin2c":      "bin/bin2c",
+      "cudafe++":   "bin/cudafe++",
+      "fatbinary":  "bin/fatbinary",
+      "nvcc":       "bin/nvcc",
+      "nvlink":     "bin/nvlink",
+      "ptxas":      "bin/ptxas"
+    }
+  }
+}

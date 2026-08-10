@@ -1,7 +1,3 @@
-# Uncomment to suppress warnings coming from external libraries.
-#
-#cxx.internal.scope = current
-
 cxx.std = latest
 
 using cxx
@@ -11,7 +7,4 @@ cxx{*}: extension = c
 
 legal{*}: backlink = false
 
-# Only Windows is currently supported.
-#
-if ($cc.target.class != 'windows')
-  fail 'Only Windows is currently supported'
+test.target = $cxx.target

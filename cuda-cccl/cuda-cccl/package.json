@@ -1,0 +1,20 @@
+{
+  "platforms": {
+    "x86_64-windows": {
+      "cccl": {
+        "linked": [],
+        "shared": [],
+        "archives": [],
+        "depends": []
+      }
+    },
+    "x86_64-linux": {
+      "cccl": {
+        "linked": [],
+        "shared": [],
+        "archives": [],
+        "depends": []
+      }
+    }
+  }
+}

@@ -1,3 +1,6 @@
 import libs = cuda-cccl%lib{cccl}
 
 exe{driver}: cxx{**} $libs testscript{**}
+
+if ($cxx.target.system == 'win32-msvc')
+  cxx.coptions += /Zc:preprocessor

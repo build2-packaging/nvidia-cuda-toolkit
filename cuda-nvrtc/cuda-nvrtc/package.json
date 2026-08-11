@@ -7,8 +7,7 @@
             {"dll": "bin/x64/nvrtc64_130_0.dll", "libs": ["lib/x64/nvrtc.lib"]}
           ],
           "shared": [
-            "bin/x64/nvrtc-builtins64_130.dll",
-            "bin/x64/nvrtc64_130_0.alt.dll"
+            "bin/x64/nvrtc-builtins64_133.dll"
           ],
           "archives": [],
           "depends": []
@@ -22,8 +21,7 @@
           "linked": [],
           "shared": [
             "lib/libnvrtc.so",
-            "lib/libnvrtc-builtins.so",
-            "lib/libnvrtc.alt.so"
+            "lib/libnvrtc-builtins.so"
           ],
           "archives": [],
           "depends": []

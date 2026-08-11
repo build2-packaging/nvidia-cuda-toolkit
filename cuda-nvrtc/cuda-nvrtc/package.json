@@ -1,29 +1,35 @@
 {
   "platforms": {
     "x86_64-windows": {
-      "nvrtc": {
-        "linked": [
-          {"dll": "bin/x64/nvrtc64_130_0.dll", "libs": ["lib/x64/nvrtc.lib"]}
-        ],
-        "shared": [
-          "bin/x64/nvrtc-builtins64_130.dll",
-          "bin/x64/nvrtc64_130_0.alt.dll"
-        ],
-        "archives": [],
-        "depends": []
-      }
+      "libs": {
+        "nvrtc": {
+          "linked": [
+            {"dll": "bin/x64/nvrtc64_130_0.dll", "libs": ["lib/x64/nvrtc.lib"]}
+          ],
+          "shared": [
+            "bin/x64/nvrtc-builtins64_130.dll",
+            "bin/x64/nvrtc64_130_0.alt.dll"
+          ],
+          "archives": [],
+          "depends": []
+        }
+      },
+      "exes": {}
     },
     "x86_64-linux": {
-      "nvrtc": {
-        "linked": [],
-        "shared": [
-          "lib/libnvrtc.so",
-          "lib/libnvrtc-builtins.so",
-          "lib/libnvrtc.alt.so"
-        ],
-        "archives": [],
-        "depends": []
-      }
+      "libs": {
+        "nvrtc": {
+          "linked": [],
+          "shared": [
+            "lib/libnvrtc.so",
+            "lib/libnvrtc-builtins.so",
+            "lib/libnvrtc.alt.so"
+          ],
+          "archives": [],
+          "depends": []
+        }
+      },
+      "exes": {}
     }
   }
 }

@@ -1,30 +1,32 @@
 {
   "platforms": {
     "x86_64-windows": {
-      "nvvm": {
-        "linked": [
-          {"dll": "nvvm/bin/x64/nvvm64_40_0.dll", "libs": ["nvvm/lib/x64/nvvm.lib"]}
-        ],
-        "shared": [],
-        "archives": [],
-        "depends": []
+      "libs": {
+        "nvvm": {
+          "linked": [
+            {"dll": "nvvm/bin/x64/nvvm64_40_0.dll", "libs": ["nvvm/lib/x64/nvvm.lib"]}
+          ],
+          "shared": [],
+          "archives": [],
+          "depends": []
+        }
+      },
+      "exes": {
+        "cicc": {"path": "nvvm/bin/cicc.exe", "depends": []}
       }
     },
     "x86_64-linux": {
-      "nvvm": {
-        "linked": [],
-        "shared": ["nvvm/lib64/libnvvm.so"],
-        "archives": [],
-        "depends": []
+      "libs": {
+        "nvvm": {
+          "linked": [],
+          "shared": ["nvvm/lib64/libnvvm.so"],
+          "archives": [],
+          "depends": []
+        }
+      },
+      "exes": {
+        "cicc": {"path": "nvvm/bin/cicc", "depends": []}
       }
-    }
-  },
-  "exes": {
-    "x86_64-windows": {
-      "cicc": "nvvm/bin/cicc.exe"
-    },
-    "x86_64-linux": {
-      "cicc": "nvvm/bin/cicc"
     }
   }
 }

@@ -1,0 +1,8 @@
+: smoke
+# cicc has no --help/--version that exits 0; --help still requires an input
+# file and reports so on stdout, which is the closest deterministic no-op,
+# confirming the binary actually runs.
+$* --help >>:EOO != 0
+Missing input file
+Recognized input file extensions are: .bc .ci .i .cup .optixir
+EOO

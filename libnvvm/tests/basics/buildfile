@@ -1,7 +1,8 @@
 import libs = libnvvm%libs{nvvm}
+import cicc  = libnvvm%exe{cicc}
 
-# make sure executables are importable
-import! all = \
-  libnvvm%exe{cicc}
+testscript{cicc}@./: test = $cicc
 
-exe{driver}: c{**} $libs testscript{**} $all
+./: testscript{cicc}@./ $cicc
+
+./: exe{driver}: c{**} $libs

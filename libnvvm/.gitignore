@@ -27,3 +27,7 @@
 # Compilation database.
 #
 compile_commands.json
+
+# Backlinked exe{} targets
+#
+libnvvm/nvvm/bin/cicc

@@ -1,20 +1,26 @@
 {
   "platforms": {
     "x86_64-windows": {
-      "crt": {
-        "linked": [],
-        "shared": [],
-        "archives": [],
-        "depends": []
-      }
+      "libs": {
+        "crt": {
+          "linked": [],
+          "shared": [],
+          "archives": [],
+          "depends": []
+        }
+      },
+      "exes": {}
     },
     "x86_64-linux": {
-      "crt": {
-        "linked": [],
-        "shared": [],
-        "archives": [],
-        "depends": []
-      }
+      "libs": {
+        "crt": {
+          "linked": [],
+          "shared": [],
+          "archives": [],
+          "depends": []
+        }
+      },
+      "exes": {}
     }
   }
 }

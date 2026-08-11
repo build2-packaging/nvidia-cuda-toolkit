@@ -5,4 +5,5 @@
 $* --help >>:EOO != 0
 Missing input file
 Recognized input file extensions are: .bc .ci .i .cup .optixir
+
 EOO

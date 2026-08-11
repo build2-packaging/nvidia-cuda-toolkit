@@ -89,7 +89,9 @@ for plat: [json_object] ($json["platforms"])
 {
   plat_key = $member_name($plat)
   enabled  = [bool] ($cc.target.cpu-$cc.target.class == $plat_key)
-  for m: [json_object] ($member_value($plat))
+  plat_val = [json_object] $member_value($plat)
+
+  for m: [json_object] ($plat_val["libs"])
   {
     n = $member_name($m)
     v = [json_object] ($member_value($m))
@@ -177,15 +179,43 @@ for plat: [json_object] ($json["platforms"])
       cc.export.poptions = $pub_hdrs
     }
   }
+
+  for m: [json_object] ($plat_val["exes"])
+  {
+    v = [json_object] ($member_value($m))
+    p = [string] ($v["path"])
+
+    ./: exe{$(p)...}: include = $enabled
+    exe{$(p)...}: import{$name-headers}: extract{$name}: include = $enabled
+
+    exe{$(p)...}:
+    {
+      install.subdirs = true
+    }
+
+    for d2: [json_array] ($v["depends"])
+    {
+      dep = [name] $d2
+      exe{$(p)...}: libs{$dep}:
+      {
+        include = $enabled
+        clean = false
+      }
+    }
+  }
 }
+
+exe{~'/(.+)/'}:
+{{
+  diag import $> $<
+  touch $path($>)
+
+  # NVIDIA's cuda-nvcc/libnvvm executables link only against system libs
+  # (confirmed via ldd/readelf against the real built binaries), so no
+  # patchelf/rpath fix needed here, unlike nvidia-tensorrt's trtexec.
+}}
 
 lib/liba{**}: install = false
-
-exe{*}:
-{
-  install         = bin/
-  install.subdirs = true
-}
 
 include/h{**}:
 {

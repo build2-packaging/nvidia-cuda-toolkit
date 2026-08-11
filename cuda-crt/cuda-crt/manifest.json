@@ -1,5 +1,5 @@
 {
-  "redistUrl": "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.2.json",
+  "redistUrl": "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.3.1.json",
   "includeDirs": ["include"],
   "ccType": "cc",
   "binless": true,
@@ -7,12 +7,12 @@
     "x86_64-windows": {
       "component": "cuda_crt",
       "platform": "windows-x86_64",
-      "version": "13.0.88"
+      "version": "13.3.73"
     },
     "x86_64-linux": {
       "component": "cuda_crt",
       "platform": "linux-x86_64",
-      "version": "13.0.88"
+      "version": "13.3.73"
     }
   }
 }

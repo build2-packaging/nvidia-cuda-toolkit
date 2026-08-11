@@ -27,3 +27,13 @@
 # Compilation database.
 #
 compile_commands.json
+
+# Backlinked exe{} targets
+#
+cuda-nvcc/bin/__nvcc_device_query
+cuda-nvcc/bin/bin2c
+cuda-nvcc/bin/cudafe++
+cuda-nvcc/bin/fatbinary
+cuda-nvcc/bin/nvcc
+cuda-nvcc/bin/nvlink
+cuda-nvcc/bin/ptxas

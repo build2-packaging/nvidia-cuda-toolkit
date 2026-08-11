@@ -1,12 +1,26 @@
-import libs = cuda-nvcc%lib{nvcc}
+import libs         = cuda-nvcc%lib{nvcc}
+import bin2c        = cuda-nvcc%exe{bin2c}
+import cudafe       = cuda-nvcc%exe{cudafe++}
+import fatbinary    = cuda-nvcc%exe{fatbinary}
+import nvcc         = cuda-nvcc%exe{nvcc}
+import nvlink       = cuda-nvcc%exe{nvlink}
+import ptxas        = cuda-nvcc%exe{ptxas}
+import device_query = cuda-nvcc%exe{__nvcc_device_query}
 
-# make sure executables are importable
-import! all = \
-  cuda-nvcc%exe{bin2c} \
-  cuda-nvcc%exe{cudafe++} \
-  cuda-nvcc%exe{fatbinary} \
-  cuda-nvcc%exe{nvcc} \
-  cuda-nvcc%exe{nvlink} \
-  cuda-nvcc%exe{ptxas}
+testscript{bin2c}@./:         test = $bin2c
+testscript{cudafe}@./:        test = $cudafe
+testscript{fatbinary}@./:     test = $fatbinary
+testscript{nvcc}@./:          test = $nvcc
+testscript{nvlink}@./:        test = $nvlink
+testscript{ptxas}@./:         test = $ptxas
+testscript{device_query}@./:  test = $device_query
 
-exe{driver}: {c}{**} $libs testscript{**} $all
+./: testscript{bin2c}@./        $bin2c
+./: testscript{cudafe}@./       $cudafe
+./: testscript{fatbinary}@./    $fatbinary
+./: testscript{nvcc}@./         $nvcc
+./: testscript{nvlink}@./       $nvlink
+./: testscript{ptxas}@./        $ptxas
+./: testscript{device_query}@./ $device_query
+
+./: exe{driver}: {c}{**} $libs

@@ -1,20 +1,26 @@
 {
   "platforms": {
     "x86_64-windows": {
-      "cccl": {
-        "linked": [],
-        "shared": [],
-        "archives": [],
-        "depends": []
-      }
+      "libs": {
+        "cccl": {
+          "linked": [],
+          "shared": [],
+          "archives": [],
+          "depends": []
+        }
+      },
+      "exes": {}
     },
     "x86_64-linux": {
-      "cccl": {
-        "linked": [],
-        "shared": [],
-        "archives": [],
-        "depends": []
-      }
+      "libs": {
+        "cccl": {
+          "linked": [],
+          "shared": [],
+          "archives": [],
+          "depends": []
+        }
+      },
+      "exes": {}
     }
   }
 }

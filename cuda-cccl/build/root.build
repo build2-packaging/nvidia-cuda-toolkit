@@ -7,4 +7,10 @@ cxx{*}: extension = c
 
 legal{*}: backlink = false
 
+# Since the executables are prebuilt, the normally run link-rule never
+# assigns it explicitly. Let's be explicit here and in package.json.
+#
+if ($cc.target.class == 'windows')
+  exe{*}: extension = exe
+
 test.target = $cxx.target

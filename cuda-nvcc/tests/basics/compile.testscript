@@ -1,0 +1,8 @@
+: smoke-compile
+cat <<EOI >= cuda_runtime.h && cat <<EOI2 >= dummy.cu && $* -x cu -I. -arch=native --fatbin dummy.cu -o dummy.fatbin >! 2>! && rm dummy.fatbin
+#define __global__
+#define __device__
+#define __host__
+EOI
+__global__ void dummy() {}
+EOI2

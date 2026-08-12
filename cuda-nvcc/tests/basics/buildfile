@@ -23,4 +23,9 @@ testscript{device_query}@./:  test = $device_query
 ./: testscript{ptxas}@./        $ptxas
 ./: testscript{device_query}@./ $device_query
 
+testscript{compile}@./: test         = $nvcc
+testscript{compile}@./: test.options = -ccbin $process_path.effect($c.path)
+
+./: testscript{compile}@./ $nvcc
+
 ./: exe{driver}: {c}{**} $libs

@@ -1,5 +1,6 @@
 using c
 using cxx
+using in
 
 h{*}: extension = h
 c{*}: extension = c

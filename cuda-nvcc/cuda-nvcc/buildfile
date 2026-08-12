@@ -8,12 +8,11 @@ win  = [bool] ($cc.target.class == 'windows')
 
 source redist.build
 
-# On Windows, exclude the archive's nvcc.profile from extraction: we generate
-# a build-time profile with absolute paths to libnvvm. update-for-install
-# regenerates it with $(TOP)-relative paths (correct once both packages share
-# the same install prefix).
-if ($win)
-  extract_exclude = [cmdline] --exclude "*/bin/nvcc.profile"
+# Exclude the archive's nvcc.profile from extraction: we generate a build-time
+# profile with absolute paths to libnvvm. update-for-install regenerates it
+# with $(TOP)-relative paths (correct once both packages share the same
+# install prefix).
+extract_exclude = [cmdline] --exclude "*/bin/nvcc.profile"
 
 json{$name-manifest}: $src_root/manifest manifest.json
 
@@ -171,35 +170,18 @@ include/h{**}:
 # Generate bin/nvcc.profile for the build-time layout. CICC_PATH and
 # NVVMIR_LIBRARY_DIR point to libnvvm's build directory. The % install body
 # regenerates it with $(TOP)-relative paths directly into the install prefix.
-bin/exe{nvcc}: bin/file{nvcc.profile}: include = $win
+bin/exe{nvcc}: bin/file{nvcc.profile}
 
+bin/file{nvcc.profile}: in{nvcc.profile.win.in}: include = $win
+bin/file{nvcc.profile}: in{nvcc.profile.posix.in}: include = (!$win)
 bin/file{nvcc.profile}: extract{$name} $libnvvm
-% update
-{{
-  nvvm = $posix_representation($path($libnvvm))
-  p    = $posix_representation($path($>))
 
-  diag gen $>
-
-  cat <<='EOF' | sed -e "s|@NVVM@|$(nvvm)|" >"$p" &!$p
-
-  TOP              = $(_HERE_)/..
-
-  CICC_PATH        = @NVVM@bin
-  NVVMIR_LIBRARY_DIR = @NVVM@libdevice
-
-  PATH            += $(CICC_PATH);$(_HERE_);$(TOP)/lib;
-
-  INCLUDES        += "-I$(TOP)/include" "-I$(TOP)/include/cccl" $(_SPACE_)
-  SYSTEM_INCLUDES +=  $(_SPACE_)
-
-  LIBRARIES        =+ $(_SPACE_) "/LIBPATH:$(TOP)/lib/$(_WIN_PLATFORM_)"
-
-  CUDAFE_FLAGS    +=
-  PTXAS_FLAGS     +=
-
-  EOF
-}}
+bin/file{nvcc.profile}:
+{
+  in.symbol          = '@'
+  cicc_path          = $posix_representation($path($libnvvm))bin
+  nvvmir_library_dir = $posix_representation($path($libnvvm))libdevice
+}
 
 bin/file{nvcc.profile}:
 {
@@ -213,22 +195,48 @@ bin/file{nvcc.profile}:
   diag gen-install $> -> $p
 
   mkdir --no-cleanup -p "$dst"
-  cat <<='EOF' >"$p" &!$p
 
-  TOP              = $(_HERE_)/..
+  if ($win)
+  {
+    cat <<='EOF' >"$p" &!$p
 
-  CICC_PATH        = $(TOP)/nvvm/bin
-  NVVMIR_LIBRARY_DIR = $(TOP)/nvvm/libdevice
+    TOP              = $(_HERE_)/..
 
-  PATH            += $(CICC_PATH);$(_HERE_);$(TOP)/lib;
+    CICC_PATH        = $(TOP)/nvvm/bin
+    NVVMIR_LIBRARY_DIR = $(TOP)/nvvm/libdevice
 
-  INCLUDES        += "-I$(TOP)/include" "-I$(TOP)/include/cccl" $(_SPACE_)
-  SYSTEM_INCLUDES +=  $(_SPACE_)
+    PATH            += $(CICC_PATH);$(_HERE_);$(TOP)/lib;
 
-  LIBRARIES        =+ $(_SPACE_) "/LIBPATH:$(TOP)/lib/$(_WIN_PLATFORM_)"
+    INCLUDES        += "-I$(TOP)/include" "-I$(TOP)/include/cccl" $(_SPACE_)
+    SYSTEM_INCLUDES +=  $(_SPACE_)
 
-  CUDAFE_FLAGS    +=
-  PTXAS_FLAGS     +=
+    LIBRARIES        =+ $(_SPACE_) "/LIBPATH:$(TOP)/lib/$(_WIN_PLATFORM_)"
 
-  EOF
+    CUDAFE_FLAGS    +=
+    PTXAS_FLAGS     +=
+
+    EOF
+  }
+  else
+  {
+    cat <<='EOF' >"$p" &!$p
+
+    TOP              = $(_HERE_)/..
+
+    CICC_PATH        = $(TOP)/nvvm/bin
+    NVVMIR_LIBRARY_DIR = $(TOP)/nvvm/libdevice
+
+    LD_LIBRARY_PATH += $(TOP)/lib:
+    PATH            += $(CICC_PATH):$(_HERE_):
+
+    INCLUDES        += "-I$(TOP)/include" "-I$(TOP)/include/cccl" $(_SPACE_)
+    SYSTEM_INCLUDES +=  $(_SPACE_)
+
+    LIBRARIES        =+ $(_SPACE_) "-L$(TOP)/lib"
+
+    CUDAFE_FLAGS    +=
+    PTXAS_FLAGS     +=
+
+    EOF
+  }
 }}

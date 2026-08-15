@@ -165,13 +165,10 @@ for plat: [json_object] ($json["platforms"])
       }
     }
 
-    if ($n == 'cudart')
+    libs{$n}: $intf_libs: include = ($n == 'cudart' && $enabled)
+    if ($n == 'cudart' && $enabled)
     {
-      libs{$n}: $intf_libs: include = $enabled
-      if $enabled
-      {
-        libs{$n}: cc.export.libs += $intf_libs
-      }
+      libs{$n}: cc.export.libs += $intf_libs
     }
     libs{$n}:
     {

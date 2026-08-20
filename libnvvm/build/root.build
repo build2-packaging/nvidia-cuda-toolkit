@@ -11,4 +11,7 @@ legal{*}: backlink = false
 if ($cc.target.class == 'windows')
   exe{*}: extension = exe
 
+config [dir_path] config.libnvvm.cache ?= \
+  (!$null($config.cuda.cache) ? $config.cuda.cache : $out_root)
+
 test.target = $c.target

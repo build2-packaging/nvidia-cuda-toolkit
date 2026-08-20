@@ -47,3 +47,16 @@ exe{nvcc}
 exe{nvlink}
 exe{ptxas}
 ```
+
+
+## Configuration variables
+
+This package provides the following configuration variables:
+
+```
+[dir_path] config.cuda_nvcc.cache ?= $out_root
+```
+
+The directory used to cache downloaded binary archives between builds. If
+`config.cuda.cache` is set (a shared project-wide cache directory), it
+takes precedence over the per-package default of `$out_root`.

@@ -14,4 +14,7 @@ legal{*}: backlink = false
 if ($cc.target.class == 'windows')
   exe{*}: extension = exe
 
+config [dir_path] config.cuda_crt.cache ?= \
+  (!$null($config.cuda.cache) ? $config.cuda.cache : $out_root)
+
 test.target = $c.target

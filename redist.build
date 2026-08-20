@@ -41,8 +41,10 @@ json{~'/(.+-manifest.*)/'}:
 # $<[0]: json{$name-manifest} (redistrib JSON), $<[1]: manifest.json
 archive{~'/(.+)/'}:
 {{
-  tar  = $out_root/$leaf($path($>))
-  part = $(tar).part
+  pkg   = $project_name.variable($project)
+  cache = [dir_path] $(config.$(pkg).cache)
+  tar   = [path] $cache/$leaf($path($>))
+  part  = [path] $(tar).part
 
   redist_j  = ($<[0])
   local_j   = ($<[1])
@@ -67,11 +69,12 @@ archive{~'/(.+)/'}:
   depdb hash $redist
   diag curl $url -> $>
 
+  mkdir --no-cleanup -p $directory($part)
   bsdtar -tf $tar >- 2>&1 || \
     curl -\# --fail --output $part "$url"
   test -f $part && \
     rm -f $tar && mv $part $tar &!$tar || true
-  test -f $path($>) || \
+  rm -f $path($>) && \
     ln --symbolic $tar $path($>)
   touch $path($>)
 }}

@@ -152,6 +152,13 @@ exe{~'/(.+)/'}:
 
 lib/liba{**}: install = false
 
+# The extensionless libcu++ headers are h{}, not hxx{}.
+include/h{**}:
+{
+  install         = include/$project/
+  install.subdirs = true
+}
+
 include/hxx{**}:
 {
   install         = include/$project/

@@ -99,6 +99,7 @@ extract{~'/(.+)/'}:
     $extract_exclude \
     "*/*/*"  "*LICENSE"
 
+  # grep is not a build2 builtin, so the directory filter is in the sed.
   depdb dyndep \
     --dyn-target \
     --target-cwd "$o" \
@@ -119,8 +120,7 @@ extract{~'/(.+)/'}:
     --file "$d" \
     -- \
       bsdtar -tf "$a" $pattern \
-      | sed -n -e 's%^[^/]*/%%p' \
-      | grep -v '/$' >$d
+      | sed -n -e 's%^[^/]*/(.*[^/])$%\1%p' >$d
 
   diag bsdtar $< $filter_out($>, group)
   bsdtar -C "$o" -xmf "$a" --strip-components=1 $pattern

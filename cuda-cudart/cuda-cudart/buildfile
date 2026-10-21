@@ -212,7 +212,8 @@ exe{~'/(.+)/'}:
   # patchelf/rpath fix needed here, unlike nvidia-tensorrt's trtexec.
 }}
 
-lib/liba{**}: install = false
+# cuda, the driver API stub, and cudadevrt are named in cc.export.libs.
+lib/liba{**}: install = lib/
 
 include/h{**}:
 {

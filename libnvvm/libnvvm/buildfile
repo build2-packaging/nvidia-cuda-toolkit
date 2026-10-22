@@ -211,6 +211,6 @@ lib/liba{**}: install = false
 
 nvvm/include/h{**}:
 {
-  install         = include/$project/
+  install         = include/
   install.subdirs = true
 }

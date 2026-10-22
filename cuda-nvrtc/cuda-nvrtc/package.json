@@ -6,11 +6,12 @@
           "linked": [
             {"dll": "bin/x64/nvrtc64_130_0.dll", "libs": ["lib/x64/nvrtc.lib"]}
           ],
-          "shared": [
-            "bin/x64/nvrtc-builtins64_133.dll"
-          ],
+          "shared": [],
           "archives": [],
-          "depends": []
+          "depends": [],
+          "runtime": [
+            "bin/x64/nvrtc-builtins64_133.dll"
+          ]
         }
       },
       "exes": {}
@@ -20,11 +21,13 @@
         "nvrtc": {
           "linked": [],
           "shared": [
-            "lib/libnvrtc.so",
-            "lib/libnvrtc-builtins.so"
+            "lib/libnvrtc.so"
           ],
           "archives": [],
-          "depends": []
+          "depends": [],
+          "runtime": [
+            "lib/libnvrtc-builtins.so"
+          ]
         }
       },
       "exes": {}

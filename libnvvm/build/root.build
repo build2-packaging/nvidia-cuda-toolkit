@@ -11,6 +11,11 @@ legal{*}: backlink = false
 if ($cc.target.class == 'windows')
   exe{*}: extension = exe
 
+# nvcc resolves cicc at dir(nvcc)/../nvvm/bin and libdevice at
+# ../nvvm/libdevice, so name that location to install into it.
+#
+install.nvvm = [dir_path] exec_root/nvvm/
+
 config [dir_path] config.libnvvm.cache ?= \
   (!$null($config.cuda.cache) ? $config.cuda.cache : $out_root)
 

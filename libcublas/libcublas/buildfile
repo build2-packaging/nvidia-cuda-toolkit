@@ -180,6 +180,19 @@ for plat: [json_object] ($json["platforms"])
       }
     }
 
+    # Opaque runtime resource files (libdevice, TensorRT's builder resource
+    # blobs). Installed verbatim where upstream expects them, never linked.
+    for r: [json_array] ($v["resources"])
+    {
+      res = [path] $out_base/$r
+      <file{$res}>: extract{$name}: include = $enabled
+      if $enabled
+      {
+        file{$res}: install = $directory([dir_path] $r)/
+      }
+      libs{$n}: file{$res}: include = $enabled
+    }
+
     libs{$n}: $intf_libs: include = $enabled
     if $enabled
     {

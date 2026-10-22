@@ -156,3 +156,9 @@ include/h{**}:
   install         = include/
   install.subdirs = true
 }
+
+include/hxx{**}:
+{
+  install         = include/
+  install.subdirs = true
+}

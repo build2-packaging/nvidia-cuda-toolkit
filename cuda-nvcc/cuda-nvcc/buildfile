@@ -167,6 +167,12 @@ include/h{**}:
   install.subdirs = true
 }
 
+include/hxx{**}:
+{
+  install         = include/
+  install.subdirs = true
+}
+
 # Generate bin/nvcc.profile for the build-time layout. CICC_PATH and
 # NVVMIR_LIBRARY_DIR point to libnvvm's build directory. The % install body
 # regenerates it with $(TOP)-relative paths directly into the install prefix.

@@ -37,3 +37,28 @@ Set the global variable once to share a cache across all packages:
 Or override a single package:
 
   b "config.cuda_nvcc.cache=/path/to/nvcc-cache-dir"
+
+## Composed-prefix install test
+
+These packages are consumed together: NVIDIA's headers include each other by
+root-relative path across package boundaries, and the `nvcc.profile` generated
+by `cuda-nvcc` resolves `cicc`, `libdevice` and the CCCL headers relative to
+its own installed location. None of that is exercised by building or testing a
+package on its own.
+
+`install-test.bx` installs every package into one prefix, checks the layout
+`nvcc.profile` expects, and compiles a device translation unit with the
+installed `nvcc`:
+
+    bx install-test.bx <bpkg-configuration> <prefix>
+
+for example, against the configuration this project is initialized in:
+
+    bx install-test.bx ../nvidia-cuda-toolkit-gcc /tmp/cuda-prefix
+
+A third argument is passed on to `nvcc`, for example
+`-allow-unsupported-compiler` on a host whose compiler is newer than this
+CUDA release supports.
+
+On Windows run it from a developer command prompt, since `nvcc` needs a
+supported host compiler on `PATH`.

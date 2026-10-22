@@ -1,0 +1,86 @@
+#! /usr/bin/env bx
+
+# Install every package of this repository into a single prefix and check that
+# they compose there: the layout nvcc.profile expects, and an actual device
+# compilation driven by the installed nvcc.
+#
+# The per-package installed-case test from the packaging guide covers one
+# package against its own installation. This covers all of them against one
+# shared prefix, which is how the CUDA Toolkit is consumed and the only way the
+# cross-package header and tool paths get exercised.
+#
+# Usage: bx install-test.bx <bpkg-configuration> <prefix>
+#
+# The configuration is an existing one, e.g. the bdep configuration this
+# project is initialized in.
+
+cfg    = [dir_path] ($*[1])
+prefix = [dir_path] ($*[2])
+
+# Extra options for the nvcc invocation below, e.g.
+# -allow-unsupported-compiler on a host whose compiler is newer than this
+# CUDA release supports.
+#
+nvcc_extra = [strings]
+if ($size($*) > 3)
+  nvcc_extra = ($*[3])
+
+echo "installing into $prefix"
+rm -r -f $prefix
+bpkg install -d $cfg --all "config.install.root=$prefix"
+
+# The layout the generated nvcc.profile resolves against. A regression here is
+# what silently breaks a consumer of the installation.
+#
+win = ($file_exists([path] "$prefix/bin/nvcc.exe"))
+
+echo "checking the installed layout"
+for f: include/crt/host_config.h \
+       include/crt/device_functions.hpp \
+       include/cuda_runtime.h \
+       include/cccl/cuda/std/array \
+       include/nv/target \
+       include/nvvm.h \
+       bin/nvcc.profile
+{
+  test -f $prefix/$f
+}
+
+if $win
+{
+  test -f $prefix/nvvm/bin/cicc.exe
+  test -f $prefix/lib/cudart.lib
+}
+else
+{
+  test -f $prefix/nvvm/bin/cicc
+  test -f $prefix/lib/libcudart.so
+}
+
+test -f $prefix/nvvm/libdevice/libdevice.10.bc
+
+echo "compiling a device translation unit with the installed nvcc"
+cat <<EOI >=t.cu
+#include <cuda_runtime.h>
+#include <cuda/std/array>
+
+__global__ void k(int* p) { *p = 1; }
+
+int main()
+{
+  cuda::std::array<int, 3> a{1, 2, 3};
+  int n = 0;
+  cudaGetDeviceCount(&n);
+  return (int)a.size() - 3;
+}
+EOI
+
+if $win
+  $prefix/bin/nvcc.exe --fatbin -arch=sm_75 -std=c++17 -Xcompiler /Zc:preprocessor $nvcc_extra t.cu -o t.fatbin
+else
+  $prefix/bin/nvcc --fatbin -arch=sm_75 -std=c++17 $nvcc_extra t.cu -o t.fatbin
+
+test -f t.fatbin
+rm -f t.cu t.fatbin
+
+echo "ok"

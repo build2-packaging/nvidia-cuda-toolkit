@@ -8,7 +8,8 @@
           ],
           "shared": [],
           "archives": [],
-          "depends": []
+          "depends": [],
+          "resources": ["nvvm/libdevice/libdevice.10.bc"]
         }
       },
       "exes": {
@@ -21,7 +22,8 @@
           "linked": [],
           "shared": ["nvvm/lib64/libnvvm.so"],
           "archives": [],
-          "depends": []
+          "depends": [],
+          "resources": ["nvvm/libdevice/libdevice.10.bc"]
         }
       },
       "exes": {

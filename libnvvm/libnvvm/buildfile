@@ -209,6 +209,7 @@ for plat: [json_object] ($json["platforms"])
 
     exe{$(p)...}:
     {
+      install         = $directory([dir_path] $p)/
       install.subdirs = true
     }
 

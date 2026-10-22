@@ -181,6 +181,18 @@ for plat: [json_object] ($json["platforms"])
       }
     }
 
+    # Opaque resource files installed verbatim where upstream expects them.
+    for r: [json_array] ($v["resources"])
+    {
+      res = [path] $out_base/$r
+      <file{$res}>: extract{$name}: include = $enabled
+      if $enabled
+      {
+        file{$res}: install = $directory([dir_path] $r)/
+      }
+      libs{$n}: file{$res}: include = $enabled
+    }
+
     libs{$n}: $intf_libs: include = ($n == 'cudart' && $enabled)
     if ($n == 'cudart' && $enabled)
     {

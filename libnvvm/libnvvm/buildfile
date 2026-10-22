@@ -236,9 +236,7 @@ exe{~'/(.+)/'}:
   diag import $> $<
   touch $path($>)
 
-  # NVIDIA's cuda-nvcc/libnvvm executables link only against system libs
-  # (confirmed via ldd/readelf against the real built binaries), so no
-  # patchelf/rpath fix needed here, unlike nvidia-tensorrt's trtexec.
+  # These executables link only system libraries, so they need no rpath.
 }}
 
 # Exported for cuda-nvcc to symlink (nvcc.exe has a hard-coded relative path

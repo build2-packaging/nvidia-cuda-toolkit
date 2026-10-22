@@ -7,6 +7,7 @@ language: c
 project: nvidia-cuda-toolkit
 summary: GPU-accelerated library for AI and HPC applications
 license: other: CUDA Toolkit
+requires: patchelf ? ($cc.target.class == 'linux') ; Required on Linux to patch a relocatable rpath into pre-built shared libraries.
 description-file: README.md
 url: https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.3.1.json
 email: NVSDKIssues@nvidia.com

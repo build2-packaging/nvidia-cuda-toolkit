@@ -216,7 +216,7 @@ bin/file{nvcc.profile}:
 }
 % install
 {{
-  dst = $install.resolve($install.bin)
+  dst = $install.resolve($install.bin, [dir_path])
   p   = $dst/nvcc.profile
 
   diag gen-install $> -> $p

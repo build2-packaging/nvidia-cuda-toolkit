@@ -1,5 +1,5 @@
 import intf_libs    = cuda-crt%lib{crt}
-import libnvvm = libnvvm%dir{nvvm}
+import! cicc = libnvvm%exe{cicc}
 
 define [see_through] import: group
 
@@ -192,20 +192,22 @@ include/hxx{**}:
   install.subdirs = true
 }
 
-# Generate bin/nvcc.profile for the build-time layout. CICC_PATH and
-# NVVMIR_LIBRARY_DIR point to libnvvm's build directory. The % install body
-# regenerates it with $(TOP)-relative paths directly into the install prefix.
+# cicc lives in libnvvm's nvvm/bin/, libdevice alongside that bin/.
+nvvm_dir = $directory($directory($cicc))
+
+# Generate bin/nvcc.profile for the build-time layout. The % install body
+# regenerates the profile with $(TOP)-relative paths into the install prefix.
 bin/exe{nvcc}: bin/file{nvcc.profile}
 
 bin/file{nvcc.profile}: in{nvcc.profile.win.in}: include = $win
 bin/file{nvcc.profile}: in{nvcc.profile.posix.in}: include = (!$win)
-bin/file{nvcc.profile}: extract{$name} $libnvvm
+bin/file{nvcc.profile}: extract{$name} $cicc
 
 bin/file{nvcc.profile}:
 {
   in.symbol          = '@'
-  cicc_path          = $posix_representation($path($libnvvm))bin
-  nvvmir_library_dir = $posix_representation($path($libnvvm))libdevice
+  cicc_path          = $posix_representation($nvvm_dir)bin
+  nvvmir_library_dir = $posix_representation($nvvm_dir)libdevice
 }
 
 bin/file{nvcc.profile}:

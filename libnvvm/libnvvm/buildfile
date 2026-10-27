@@ -212,10 +212,24 @@ for plat: [json_object] ($json["platforms"])
     v = [json_object] ($member_value($m))
     p = [string] ($v["path"])
 
-    ./: exe{$(p)...}: include = $enabled
-    exe{$(p)...}: import{$name-headers}: extract{$name}: include = $enabled
+    # Every platform section declares this same program, and exe{name} and
+    # exe{name.exe} are the same target: build2 matches on the target name,
+    # and an unspecified extension matches any. But an extension, once
+    # specified, is immutable, so a section for a platform we are not
+    # building must not be the one that sets it. Drop the extension that
+    # section recorded and write this platform's, so every section spells
+    # the target identically.
+    #
+    n = [string] $member_name($m)
+    t = "$base([path] $p)$redist_exe_ext"
 
-    exe{$(p)...}:
+    assert ("$leaf([path] $t)" == "$n$redist_exe_ext") "package.json: exe $n does not name its path $p"
+    assert (!$enabled || "$t" == "$p") "package.json: exe $n path $p is not $t on this platform"
+
+    ./: exe{$t}: include = $enabled
+    exe{$t}: import{$name-headers}: extract{$name}: include = $enabled
+
+    exe{$t}:
     {
       install         = $directory([dir_path] $p)/
       install.subdirs = true
@@ -224,7 +238,7 @@ for plat: [json_object] ($json["platforms"])
     for d2: [json_array] ($v["depends"])
     {
       dep = [name] $d2
-      exe{$(p)...}: libs{$dep}:
+      exe{$t}: libs{$dep}:
       {
         include = $enabled
         clean = false

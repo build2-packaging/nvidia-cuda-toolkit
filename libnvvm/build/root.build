@@ -5,12 +5,6 @@ c{*}: extension = c
 
 legal{*}: backlink = false
 
-# Since the executables are prebuilt, the normally run link-rule never
-# assigns it explicitly. Let's be explicit here and in package.json.
-#
-if ($cc.target.class == 'windows')
-  exe{*}: extension = exe
-
 # nvcc resolves cicc at dir(nvcc)/../nvvm/bin and libdevice at
 # ../nvvm/libdevice, so name that location to install into it.
 #

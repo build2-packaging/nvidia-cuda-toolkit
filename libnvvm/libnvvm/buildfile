@@ -247,14 +247,6 @@ for plat: [json_object] ($json["platforms"])
   }
 }
 
-exe{~'/(.+)/'}:
-{{
-  diag import $> $<
-  touch $path($>)
-
-  # These executables link only system libraries, so they need no rpath.
-}}
-
 # Exported for cuda-nvcc to symlink (nvcc.exe has a hard-coded relative path
 # to cicc.exe at dir(nvcc.exe)/../nvvm/bin/cicc.exe).
 dir{nvvm}: extract{$name}

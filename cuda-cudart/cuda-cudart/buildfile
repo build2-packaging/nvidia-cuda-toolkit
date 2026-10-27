@@ -256,14 +256,6 @@ for plat: [json_object] ($json["platforms"])
   }
 }
 
-exe{~'/(.+)/'}:
-{{
-  diag import $> $<
-  touch $path($>)
-
-  # These executables link only system libraries, so they need no rpath.
-}}
-
 # cuda, the driver API stub, and cudadevrt are named in cc.export.libs.
 lib/liba{**}: install = lib/
 

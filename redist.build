@@ -162,6 +162,23 @@ extract{~'/(.+)/'}:
   touch $d
 }}
 
+# The prebuilt executables. Nothing is produced here: the extraction above
+# already wrote the file, and this only stamps it. Fail if it is missing,
+# because touch would otherwise create a plausible-looking empty executable
+# that goes on to clobber the real one when several of these packages are
+# installed into a shared prefix.
+#
+exe{~'/(.+)/'}:
+{{
+  diag import $> $<
+
+  test -f $path($>) || exit "no such extracted file; check this executable's exes path in package.json"
+
+  # These executables link only system libraries, so they need no rpath.
+  #
+  touch $path($>)
+}}
+
 # Linux: install versioned SONAME companions alongside the base .so.
 # build2's default install only copies the base file. This also copies any
 # real versioned binaries (e.g. libcudart.so.13.0.96) and recreates versioned

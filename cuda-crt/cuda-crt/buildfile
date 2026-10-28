@@ -58,6 +58,7 @@ import{$name-legals}:
     --target-cwd "$o" \
     --target-what 'imported files' \
     --target-default-type 'legal' \
+    --target-extension-type '=legal' \
     --format lines \
     --file $d \
     -- \

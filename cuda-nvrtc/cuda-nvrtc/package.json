@@ -3,6 +3,7 @@
     "x86_64-windows": {
       "libs": {
         "nvrtc": {
+          "linkage": "shared",
           "linked": [
             {"dll": "bin/x64/nvrtc64_130_0.dll", "libs": ["lib/x64/nvrtc.lib"]}
           ],
@@ -19,6 +20,7 @@
     "x86_64-linux": {
       "libs": {
         "nvrtc": {
+          "linkage": "shared",
           "linked": [],
           "shared": [
             "lib/libnvrtc.so"

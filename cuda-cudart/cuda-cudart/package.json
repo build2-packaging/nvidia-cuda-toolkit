@@ -3,6 +3,7 @@
     "x86_64-windows": {
       "libs": {
         "cudart": {
+          "linkage": "static",
           "linked": [
             {"dll": "bin/x64/cudart64_13.dll", "libs": ["lib/x64/cudart.lib"]}
           ],
@@ -11,6 +12,7 @@
           "depends": []
         },
         "cudadevrt": {
+          "linkage": "static",
           "linked": [],
           "shared": [],
           "archives": ["lib/x64/cudadevrt.lib"],
@@ -22,12 +24,14 @@
     "x86_64-linux": {
       "libs": {
         "cudart": {
+          "linkage": "shared",
           "linked": [],
           "shared": ["lib/libcudart.so"],
           "archives": ["lib/stubs/libcuda.so"],
           "depends": []
         },
         "cudadevrt": {
+          "linkage": "static",
           "linked": [],
           "shared": [],
           "archives": ["lib/libcudadevrt.a"],

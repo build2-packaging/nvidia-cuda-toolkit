@@ -3,6 +3,7 @@
     "x86_64-windows": {
       "libs": {
         "cccl": {
+          "linkage": "binless",
           "linked": [],
           "shared": [],
           "archives": [],
@@ -14,6 +15,7 @@
     "x86_64-linux": {
       "libs": {
         "cccl": {
+          "linkage": "binless",
           "linked": [],
           "shared": [],
           "archives": [],

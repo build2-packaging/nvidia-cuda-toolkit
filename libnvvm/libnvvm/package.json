@@ -3,6 +3,7 @@
     "x86_64-windows": {
       "libs": {
         "nvvm": {
+          "linkage": "shared",
           "linked": [
             {"dll": "nvvm/bin/x64/nvvm64_40_0.dll", "libs": ["nvvm/lib/x64/nvvm.lib"]}
           ],
@@ -19,6 +20,7 @@
     "x86_64-linux": {
       "libs": {
         "nvvm": {
+          "linkage": "shared",
           "linked": [],
           "shared": ["nvvm/lib64/libnvvm.so"],
           "archives": [],

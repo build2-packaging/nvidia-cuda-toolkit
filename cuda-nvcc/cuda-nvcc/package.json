@@ -3,6 +3,7 @@
     "x86_64-windows": {
       "libs": {
         "nvcc": {
+          "linkage": "binless",
           "linked": [],
           "shared": [],
           "archives": [],
@@ -22,6 +23,7 @@
     "x86_64-linux": {
       "libs": {
         "nvcc": {
+          "linkage": "binless",
           "linked": [],
           "shared": [],
           "archives": [],

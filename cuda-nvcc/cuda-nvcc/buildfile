@@ -119,6 +119,13 @@ for plat: [json_object] ($json["platforms"])
   {
     n = $member_name($m)
 
+    # Keep clean = false. The prebuilt binaries below are declared targets
+    # that no rule matches for clean, so cleaning through this library fails
+    # with "no rule to clean ...". See build2 issue 463.
+    #
+    # Cost: b clean leaves the extracted payload in place (the downloaded
+    # archives are unaffected, see README-DEV.md).
+    #
     ./: lib{$n}:
     {
       include = $enabled
@@ -177,11 +184,7 @@ for plat: [json_object] ($json["platforms"])
     for d2: [json_array] ($v["depends"])
     {
       dep = [name] $d2
-      exe{$t}: libs{$dep}:
-      {
-        include = $enabled
-        clean = false
-      }
+      exe{$t}: libs{$dep}: include = $enabled
     }
   }
 }
@@ -205,8 +208,8 @@ nvvm_dir = $directory($directory($cicc))
 
 # Generate bin/nvcc.profile for the build-time layout. The % install body
 # regenerates the profile with $(TOP)-relative paths into the install prefix.
-# The exes loop above attaches it to exe{nvcc}; that is the only spelling
-# of that target now, on either platform.
+# The exes loop above attaches it to exe{nvcc}, the only spelling of that
+# target now, on either platform.
 #
 bin/file{nvcc.profile}: in{nvcc.profile.win.in}: include = $win
 bin/file{nvcc.profile}: in{nvcc.profile.posix.in}: include = (!$win)

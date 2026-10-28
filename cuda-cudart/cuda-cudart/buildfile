@@ -114,6 +114,13 @@ for plat: [json_object] ($json["platforms"])
     n = $member_name($m)
     v = [json_object] ($member_value($m))
 
+    # Keep clean = false. The prebuilt binaries below are declared targets
+    # that no rule matches for clean, so cleaning through this library fails
+    # with "no rule to clean ...". See build2 issue 463.
+    #
+    # Cost: b clean leaves the extracted payload in place (the downloaded
+    # archives are unaffected, see README-DEV.md).
+    #
     ./: libs{$n}:
     {
       include = $enabled
@@ -248,11 +255,7 @@ for plat: [json_object] ($json["platforms"])
     for d2: [json_array] ($v["depends"])
     {
       dep = [name] $d2
-      exe{$t}: libs{$dep}:
-      {
-        include = $enabled
-        clean = false
-      }
+      exe{$t}: libs{$dep}: include = $enabled
     }
   }
 }

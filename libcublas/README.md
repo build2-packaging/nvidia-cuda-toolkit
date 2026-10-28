@@ -27,7 +27,7 @@ depends: libcublas ^13.0.1
 Then import the library in your `buildfile`:
 
 ```
-import libs = libcublas%libs{cublas}
+import libs = libcublas%lib{cublas}
 ```
 
 
@@ -36,7 +36,7 @@ import libs = libcublas%libs{cublas}
 This package provides the following importable targets:
 
 ```
-libs{cublas}
+lib{cublas}
 ```
 
 

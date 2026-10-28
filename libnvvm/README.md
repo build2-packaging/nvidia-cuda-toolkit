@@ -26,7 +26,7 @@ depends: libnvvm ^13.0.1
 Then import the library in your `buildfile`:
 
 ```
-import libs = libnvvm%libs{nvvm}
+import libs = libnvvm%lib{nvvm}
 ```
 
 
@@ -35,7 +35,7 @@ import libs = libnvvm%libs{nvvm}
 This package provides the following importable targets:
 
 ```
-libs{nvvm}
+lib{nvvm}
 exe{cicc}
 ```
 

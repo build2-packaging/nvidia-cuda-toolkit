@@ -28,7 +28,7 @@ depends: cuda-nvrtc ^13.0.1
 Then import the library in your `buildfile`:
 
 ```
-import libs = cuda-nvrtc%libs{nvrtc}
+import libs = cuda-nvrtc%lib{nvrtc}
 ```
 
 
@@ -37,7 +37,7 @@ import libs = cuda-nvrtc%libs{nvrtc}
 This package provides the following importable targets:
 
 ```
-libs{nvrtc}
+lib{nvrtc}
 ```
 
 

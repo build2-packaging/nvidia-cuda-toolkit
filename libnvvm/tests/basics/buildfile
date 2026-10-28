@@ -1,4 +1,4 @@
-import libs = libnvvm%libs{nvvm}
+import libs = libnvvm%lib{nvvm}
 import cicc  = libnvvm%exe{cicc}
 
 testscript{cicc}@./: test = $cicc

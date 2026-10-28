@@ -28,7 +28,7 @@ depends: cuda-cudart ^13.0.1
 Then import the library in your `buildfile`:
 
 ```
-import libs = cuda-cudart%libs{cudart}
+import libs = cuda-cudart%lib{cudart}
 ```
 
 
@@ -37,7 +37,7 @@ import libs = cuda-cudart%libs{cudart}
 This package provides the following importable targets:
 
 ```
-libs{cudart}
+lib{cudart}
 ```
 
 

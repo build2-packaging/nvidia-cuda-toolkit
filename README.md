@@ -34,3 +34,6 @@ bdep init -C @msvc c config.c=cl.exe
 bdep update
 bdep test
 ```
+
+For how the packages are put together and what to run before publishing, see
+[`README-DEV.md`](README-DEV.md).

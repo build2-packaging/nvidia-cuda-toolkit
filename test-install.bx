@@ -1,0 +1,177 @@
+#! /usr/bin/env bx
+
+# Install every package into one prefix, compile a .cu with the installed
+# nvcc, then build and run a consumer that imports the installed libraries.
+#
+# The packages are only usable together: their headers include each other
+# across package boundaries and the generated nvcc.profile resolves cicc,
+# libdevice and the include roots relative to the installed nvcc. A single
+# package's tests cannot reach any of that.
+#
+# Run before publishing, on every target platform.
+#
+# Usage: bx test-install.bx <scratch-dir>
+#
+# <scratch-dir> is wiped on entry and left behind for inspection. Pass a path
+# outside the repository.
+
+if ($size($*) != 2)
+  exit "usage: bx test-install.bx <scratch-dir>"
+
+src     = [dir_path] $normalize($complete($directory($0)))
+scratch = [dir_path] $normalize($complete([dir_path] ($*[1])))
+
+test -f $src/packages.manifest || exit "$src is not a package repository"
+
+if ($string.replace("$scratch", "$src", '') != "$scratch")
+  exit "scratch directory must be outside $src"
+
+win = [bool] ($getenv(OS) == 'Windows_NT')
+exe = [string] ($win ? '.exe' : '')
+
+# The bare name b resolves through $build.path, which a bx script leaves empty.
+#
+drv = [cmdline] ($win ? b.exe : b)
+
+prefix  = [dir_path] $scratch/install/
+consume = [dir_path] $scratch/consume/
+
+dirs = [dir_paths]
+pkgs = [strings]
+sed -n -e 's/^location: *(.+)$/\1/p' $src/packages.manifest | for -n l
+{
+  test -f $src/$l/manifest || exit "no manifest in $l"
+
+  # Unconfigured, b install would build in the work tree and put the archive
+  # cache inside the checkout.
+  #
+  test -f $src/$l/build/bootstrap/out-root.build || \
+    exit "$l is not configured, run bdep init first"
+
+  sed -n -e 's/^name: *(.+)$/\1/p' $src/$l/manifest | set n [string]
+
+  dirs += $src/$l
+  pkgs += $n
+}
+
+rm -r -f $scratch
+mkdir -p $scratch
+
+echo "installing into $prefix"
+$drv "config.install.root=$prefix" install: $dirs
+
+# nvcc.profile resolves these. Absent, nvcc fails cryptically below.
+#
+test -f $prefix/bin/nvcc.profile
+test -f $prefix/nvvm/bin/cicc$exe
+test -f $prefix/nvvm/libdevice/libdevice.10.bc
+
+# Real headers, which only a composed prefix has: cuda_runtime.h from
+# cuda-cudart, cuda/std/array from cuda-cccl, both compiled by the cuda-nvcc
+# they depend on. -allow-unsupported-compiler because host_config.h rejects a
+# host compiler newer than this CUDA release, which says nothing about the
+# packaging.
+#
+nvcc_opts = [cmdline]
+if $win
+  nvcc_opts += -Xcompiler /Zc:preprocessor
+
+echo "compiling with the installed nvcc"
+cat <<EOI >=$scratch/t.cu
+#include <cuda_runtime.h>
+#include <cuda/std/array>
+
+__global__ void k(int* p) { *p = 1; }
+
+int main()
+{
+  cuda::std::array<int, 3> a{1, 2, 3};
+  int n = 0;
+  cudaGetDeviceCount(&n);
+  return (int)a.size() - 3;
+}
+EOI
+
+$prefix/bin/nvcc$exe --fatbin -arch=sm_75 -std=c++17 -allow-unsupported-compiler \
+  $nvcc_opts $scratch/t.cu -o $scratch/t.fatbin
+
+# No poptions: the include directories have to come from the installed pc
+# files. No exes either, an install tree gives them no pkg-config lookup.
+#
+echo "consuming the installed libraries"
+mkdir -p $consume/build
+
+cat <<EOI >=$consume/build/bootstrap.build
+project = consume
+
+using config
+EOI
+
+cat <<EOI >=$consume/build/root.build
+using c
+EOI
+
+echo "libs = [names]" >=$consume/buildfile
+for p: $pkgs
+  echo "import libs += $p%lib{$regex.replace($p, '^(cuda-|lib)', '')}" >+$consume/buildfile
+echo './: exe{consume}: c{consume} $libs' >+$consume/buildfile
+
+cat <<EOI >=$consume/consume.c
+#include <cuda_runtime.h>
+#include <cublas.h>
+#include <nvvm.h>
+#include <nvrtc.h>
+
+#undef NDEBUG
+
+#include <assert.h>
+#include <stdio.h>
+
+int main (void)
+{
+  int major = 0, minor = 0;
+
+  assert (nvvmVersion (&major, &minor) == NVVM_SUCCESS);
+  printf ("consume - nvvmVersion(): v%d.%d\n", major, minor);
+
+  assert (nvrtcVersion (&major, &minor) == NVRTC_SUCCESS);
+  printf ("consume - nvrtcVersion(): v%d.%d\n", major, minor);
+
+  int version = 0;
+  assert (cublasGetVersion (&version) == CUBLAS_STATUS_SUCCESS);
+  printf ("consume - cublasGetVersion(): %d\n", version);
+
+  /* Compiling loads nvrtc-builtins by bare name. */
+  const char* src = "__global__ void k (float* p) { p[0] = 1.0f; }\n";
+  nvrtcProgram prog;
+  assert (nvrtcCreateProgram (&prog, src, "k.cu", 0, NULL, NULL) == NVRTC_SUCCESS);
+  assert (nvrtcCompileProgram (prog, 0, NULL) == NVRTC_SUCCESS);
+  assert (nvrtcDestroyProgram (&prog) == NVRTC_SUCCESS);
+  printf ("consume - nvrtcCompileProgram(): ok\n");
+
+  /* No GPU is not a failure, the point is that cudart links and runs. */
+  int count = 0;
+  if (cudaGetDeviceCount (&count) == cudaSuccess)
+    printf ("consume - cudaGetDeviceCount(): %d\n", count);
+  else
+    printf ("consume - cudaGetDeviceCount(): no device\n");
+
+  return 0;
+}
+EOI
+
+lopt = [string] ($win ? "/LIBPATH:$prefix/lib" : "-L$prefix/lib")
+
+cfgopts = [cmdline] "config.cc.loptions=$lopt"
+if (!$win)
+  cfgopts += "config.bin.rpath=$prefix/lib"
+
+$drv $cfgopts configure: $consume
+$drv $consume
+
+if $win
+  env "PATH=$prefix/bin;$getenv(PATH)" -- $consume/consume$exe
+else
+  $consume/consume
+
+echo "ok"

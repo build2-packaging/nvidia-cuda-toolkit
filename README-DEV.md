@@ -1,110 +1,92 @@
-# Add new package
-1. Copy-paste one of the existing package directories and
-   update names accordingly. For canonical names see the
-   corresponding `redistrib_X.Y.Z.json` [here](https://developer.download.nvidia.com/compute/cuda/redist/).
-2. Initialize package (`bdep init`) and build (`bdep update`).
-   If `redist.build` complains about version-mismatch (local
-   vs remote), update `upstream-version` in `manifest`.
-3. Verify that the extracted targets in `out_base` are all
-   accounted for (eg. all executables & libraries).
+# Maintaining these packages
+
+All seven packages are the same package with different data. The buildfile
+comments carry the details at the point of use.
+
+## What a package is
+
+Per package:
+
+    <pkg>/manifest.json   which NVIDIA component to fetch, per platform
+    <pkg>/package.json    which extracted files become which targets
+    <pkg>/buildfile       the loop that turns package.json into targets
+    build/root.build      the cache configuration variable
+
+`redist.build` at the root holds the fetch and extract machinery, symlinked
+into every package and sourced by its buildfile. Nothing is compiled:
+
+    json{<name>-manifest}   fetch redistrib_X.Y.Z.json from redistUrl
+    archive{...}            download the platform tarball into the cache
+    extract{...}            untar into $out_base, discovering the files
+    lib{} exe{} file{}      stamp those files as targets
+
+`manifest.json`: `redistUrl`, `includeDirs` (the public include roots), and
+per platform `component`, `platform` and `version`.
+
+`package.json`: per platform a `libs` and an `exes` object. Per library,
+
+    linkage     shared, static or binless, see below
+    linked      a DLL together with its link-time file
+    shared      a shared object linked directly
+    archives    static archives, this library's own one first
+    runtime     loaded at run time, never linked
+    resources   data files installed verbatim where upstream expects them
+    depends     another library in this same package
+
+and per executable `path` and `depends`. Both platform sections are always
+declared and gated with `include =`, so the build graph is the same in every
+configuration.
+
+## Add a new package
+
+1. Copy an existing package directory and rename throughout. For the canonical
+   component name see the `redistrib_X.Y.Z.json` files
+   [here](https://developer.download.nvidia.com/compute/cuda/redist/). Check
+   the `name = $string.replace($project, ...)` line: `cuda-*` packages strip
+   `cuda-`, `lib*` packages strip `lib`.
+2. Write `manifest.json` and `package.json` for the component.
+3. `bdep init`, then `bdep update`. A version mismatch means the `version` in
+   `manifest.json` disagrees with the remote entry. Fix it there, then set
+   `upstream-version` in `manifest` to match.
+4. Check that every extracted file under `out_base` that should ship is named
+   in `package.json`.
 
 ## Cache directory
 
-Downloaded archives are placed in `$out_root` by default. They are not
-registered as build2 targets, so `bdep clean` leaves them untouched. Set
-one of the two `dir_path` variables below to redirect them to a different
-location (for example, a directory shared across multiple build configurations):
+Tarballs land in `$out_root` by default. Only a symlink to the tarball is a
+target, so `b clean` leaves the cache alone. Set `config.<pkg>.cache` for one
+package or `config.cuda.cache` for all, the per-package value wins. The
+variable name comes from the package name, so `cuda-nvcc` uses
+`config.cuda_nvcc.cache`.
 
-  Variable                        Scope
-  --------                        -----
-  config.cuda.cache               global: applies to all packages when set
-  config.<pkg>.cache              per-package: overrides the global value
+    b "config.cuda_nvcc.cache=/path/to/cache"
 
-Resolution order (evaluated in `root.build` for each package):
+`config.cuda.cache` is read at configure time into each per-package value, so
+changing it afterwards needs a reconfigure.
 
-  1. `config.<pkg>.cache` if explicitly set, otherwise
-  2. `config.cuda.cache` if explicitly set, otherwise
-  3. `$out_root` (the package output directory)
+## Library linkage
 
-The per-package variable uses the package name with hyphens replaced by
-underscores. For example, `cuda-nvcc` uses `config.cuda_nvcc.cache`.
-
-Set the global variable once to share a cache across all packages:
-
-  bdep init -C @gcc cc config.c=gcc \
-    "config.cuda.cache=/path/to/cache-dir"
-
-Or override a single package:
-
-  b "config.cuda_nvcc.cache=/path/to/nvcc-cache-dir"
-
-## Library linkage in `package.json`
-
-Every library in `package.json` declares a `"linkage"`: `shared`, `static`, or
-`binless` for a package that ships no binaries. It selects the aggregate
-target (`libs{}`, `liba{}` or `lib{}`), and it has to describe the binary that
-is actually installed under that library's name.
-
-This is not derivable from the file names. NVIDIA ships both real import
-libraries and static archives of loader shims as `lib/<name>.lib`. Classify by
-looking inside:
+`linkage` says what the binary installed under that library's name actually
+is, and picks the aggregate target `libs{}`, `liba{}` or `lib{}`. It is not
+derivable from the file name: NVIDIA ships both real import libraries and
+static archives of loader shims as `lib/<name>.lib`. Look inside:
 
     lib /list <file>.lib
 
-`.dll` members mean a real import library, so `"linkage": "shared"`. `.obj`
-members mean a static archive, so `"linkage": "static"`, even when a DLL is
-loaded at run time and the archive is only a stub that `LoadLibrary`s it. As
-of 13.3.1, `cudart.lib`, `cudadevrt.lib` and `cuda.lib` are static archives
-while `nvrtc.lib`, `cublas.lib`, `cublasLt.lib`, `nvblas.lib` and `nvvm.lib`
-are import libraries.
+`.dll` members mean `shared`, `.obj` members mean `static`, even when the
+archive only `LoadLibrary`s a DLL. build2 applies the same test to the
+installed file (`cc/msvc.cxx`, `library_type()`), so the two have to agree. As
+of 13.3.1 only `cudart`, `cudadevrt` and `cuda` are static.
 
-Get it wrong and the failure is remote from the cause. build2 performs the
-same classification on the installed file (`cc/msvc.cxx`, `library_type()`),
-and if its answer differs from the variant declared here it manufactures a
-binless placeholder for the variant it cannot find. That switches off the
-positional self `-l` skip when the generated `pc` file is loaded, so the
-library resolves its own `-l` back to itself and the consumer fails with
-`dependency cycle detected`. Nothing is wrong when building against a `bpkg`
-configuration, only when consuming an installed prefix. If build2 cannot
-classify the archive at all it warns about a hybrid or empty one, and the same
-failure returns.
+Disagree and consuming an installed prefix fails with `dependency cycle
+detected`, far from the cause. A DLL whose link-time file is a shim archive
+still belongs in `linked`. A stray `*-unused.*.pc` is inert and expected.
 
-Note that a DLL whose link-time file is a static shim archive still belongs in
-`linked`, paired with that archive. `linked` says which file goes on the link
-line for a DLL, which is exactly what the shim archive is for. Moving it to
-`archives` and the DLL to `runtime` leaves the DLL with no link-time file, and
-it is then written into the generated `pc` file as an unresolvable
-`-l<dll name>`.
+## Testing
 
-Two further constraints:
+Two scripts at the repository root, each documented in its own header:
 
-- A library's own archive has to be first in `archives`. build2 identifies the
-  library's own entry in the generated `pc` file by position, the first `-l` in
-  `Libs`, so a different entry first would be swallowed instead. The `linked`
-  and `shared` loops prepend, so this only binds a library that has neither,
-  and the buildfiles assert it.
-- Linux `lib/stubs/libcuda.so` is listed under `archives` although it is a
-  shared object. That is deliberate: it is a link-time stub whose real driver
-  is loaded from the system, and it must not reach consumers as a shared
-  library. It is an exported member rather than an aggregate, so it does not
-  affect which `pc` file is generated.
+    bx test-install.bx <scratch-dir>   all packages into one prefix
+    bx test-dist.bx <scratch-dir>      each package from its own distribution
 
-### The variant that does not match
-
-An importer picks which member of the `lib{}` group it links against from its
-own `config.bin.lib`, which defaults to `both` and prefers shared. So the
-variant that does not match the installed binary still gets built, and
-installed, by anyone who depends on the package. Its `pc` file would then sit
-next to the right one in a shared prefix and bring the self-reference back,
-which is what happens when `libcublas` is installed alongside `cuda-cudart`.
-
-The buildfiles therefore give that member a `bin.lib.suffix`, so it installs
-as `libcudart-unused.shared.pc`, a name no probe looks for. For a binless
-member the suffix feeds nothing but the `pc` file name, since there is no
-binary of its own, so the library stays fully installable and linkable. A
-stray `*-unused.*.pc` in a prefix is inert and expected.
-
-Do not suppress the member with `install = false` instead. It keeps the prefix
-correct, but a consumer that installs its dependencies as a side effect then
-gets no cuda libraries at all, because the suppressed member is exactly the
-one its `bin.lib` selects.
+Run both on every target platform before publishing.

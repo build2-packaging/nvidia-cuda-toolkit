@@ -1,4 +1,0 @@
-# @NOTE: __nvcc_device_query has no '--version' flag
-if ($name($*) != "__nvcc_device_query")
-  $* --version >| 2>|
-end
